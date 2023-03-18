@@ -17,8 +17,8 @@ import {Journey} from "./journey/entities/journey.entity";
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: [
-        Station,
-        Journey
+        // Station,
+        // Journey
       ],
       synchronize: true,
     }),
