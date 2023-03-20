@@ -26,6 +26,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - uses: nrwl/nx-set-shas@v3
     - run: npm install
     - run: nx build backend --if-present
     - run: nx test backend
