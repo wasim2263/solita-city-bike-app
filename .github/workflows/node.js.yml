@@ -25,5 +25,5 @@ jobs:
          fetch-depth: 0
      - uses: nrwl/nx-set-shas@v3
      - run: npm install
-     - run: nx build backend --if-present
-     - run: nx test backend
+     - run: npx nx build backend --if-present
+     - run: npx nx test backend
