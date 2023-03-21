@@ -5,15 +5,29 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
+  Delete, UploadedFile, UseInterceptors,
 } from '@nestjs/common';
-import { JourneyService } from './journey.service';
-import { CreateJourneyDto } from './dto/create-journey.dto';
-import { UpdateJourneyDto } from './dto/update-journey.dto';
+import {JourneyService} from './journey.service';
+import {CreateJourneyDto} from './dto/create-journey.dto';
+import {UpdateJourneyDto} from './dto/update-journey.dto';
+import {diskStorage} from 'multer';
+import {FileInterceptor} from "@nestjs/platform-express";
+import {ApiConsumes} from "@nestjs/swagger";
+import {FileUploadJourniesDto} from "./dto/file-upload-journies.dto";
 
 @Controller('journey')
 export class JourneyController {
-  constructor(private readonly journeyService: JourneyService) {}
+  constructor(private readonly journeyService: JourneyService) {
+  }
+
+  @Post('upload')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@Body() fileUploadJourniesDto: FileUploadJourniesDto, @UploadedFile() file: Express.Multer.File) {
+    const csvData = await this.journeyService.uploadFile(file.buffer);
+    const result = await this.journeyService.bulkCreate(csvData);
+
+  }
 
   @Post()
   create(@Body() createJourneyDto: CreateJourneyDto) {
