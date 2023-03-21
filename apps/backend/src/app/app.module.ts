@@ -22,8 +22,8 @@ import {Journey} from "./journey/entities/journey.entity";
       ],
       synchronize: true,
     }),
+    StationModule,
     JourneyModule,
-    StationModule
   ],
   controllers: [AppController],
   providers: [AppService],

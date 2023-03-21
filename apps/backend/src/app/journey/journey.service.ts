@@ -1,12 +1,16 @@
-import {Injectable} from '@nestjs/common';
+import {Inject, Injectable} from '@nestjs/common';
 import {CreateJourneyDto} from './dto/create-journey.dto';
 import {UpdateJourneyDto} from './dto/update-journey.dto';
 import csvParser from "csv-parser";
-import validator from 'validator';
-import {Station} from "../station/entities/station.entity";
+import {StationService} from "../station/station.service";
 
 @Injectable()
 export class JourneyService {
+  constructor(
+    // private readonly stationService: StationService
+  ) {
+  }
+
   async uploadFile(buffer: Uint8Array): Promise<any[]> {
     const results = [];
     return new Promise((resolve, reject) => {
@@ -56,9 +60,11 @@ export class JourneyService {
     }
     return {returnStationData, departureStationData, journeyData}
   }
-  async getOrCreateStation(departureStationData){
+
+  async getOrCreateStation(departureStationData) {
 
   }
+
   async bulkCreate(data: any[]) {
     const validRows = [];
     const invalidRows = [];
