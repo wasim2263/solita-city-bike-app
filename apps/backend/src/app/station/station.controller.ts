@@ -12,7 +12,6 @@ import {CreateStationDto} from './dto/create-station.dto';
 import {UpdateStationDto} from './dto/update-station.dto';
 import {ApiConsumes} from "@nestjs/swagger";
 import {FileInterceptor} from "@nestjs/platform-express";
-import {FileUploadJourniesDto} from "../journey/dto/file-upload-journies.dto";
 import {FileUploadStationsDto} from "./dto/file-upload-stations.dto";
 import {FileUploadService} from "../file-upload/file-upload.service";
 

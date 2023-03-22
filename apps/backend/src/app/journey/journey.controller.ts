@@ -14,17 +14,21 @@ import {diskStorage} from 'multer';
 import {FileInterceptor} from "@nestjs/platform-express";
 import {ApiConsumes} from "@nestjs/swagger";
 import {FileUploadJourniesDto} from "./dto/file-upload-journies.dto";
+import {FileUploadService} from "../file-upload/file-upload.service";
 
 @Controller('journey')
 export class JourneyController {
-  constructor(private readonly journeyService: JourneyService) {
+  constructor(
+    private readonly journeyService: JourneyService,
+    private readonly fileUploadService: FileUploadService
+  ) {
   }
 
   @Post('upload')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@Body() fileUploadJourniesDto: FileUploadJourniesDto, @UploadedFile() file: Express.Multer.File) {
-    const csvData = await this.journeyService.uploadFile(file.buffer);
+    const csvData = await this.fileUploadService.uploadFile(file.buffer);
     this.journeyService.bulkCreate(csvData);
   }
 
@@ -35,7 +39,7 @@ export class JourneyController {
 
   @Get()
   findAll(@Query('page') page = 1, @Query('limit') limit = 10) {
-    return this.journeyService.findAll(page,limit);
+    return this.journeyService.findAll(page, limit);
   }
 
   @Get(':id')

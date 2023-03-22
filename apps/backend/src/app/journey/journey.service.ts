@@ -1,7 +1,6 @@
-import {Inject, Injectable} from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import {CreateJourneyDto} from './dto/create-journey.dto';
 import {UpdateJourneyDto} from './dto/update-journey.dto';
-import csvParser from "csv-parser";
 import {StationService} from "../station/station.service";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
@@ -29,18 +28,6 @@ export class JourneyService {
         'return_station',
       ],
       order: {returned_at: 'DESC'},
-    });
-  }
-
-  async uploadFile(buffer: Uint8Array): Promise<any[]> {
-    const results = [];
-    return new Promise((resolve, reject) => {
-      const stream = csvParser();
-      stream.on('data', (data) => results.push(data));
-      stream.on('end', () => resolve(results));
-      stream.on('error', (error) => reject(error));
-      stream.write(buffer);
-      stream.end();
     });
   }
 
