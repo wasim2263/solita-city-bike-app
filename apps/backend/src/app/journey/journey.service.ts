@@ -28,7 +28,7 @@ export class JourneyService {
         'departure_station',
         'return_station',
       ],
-      order: {created_at: 'DESC'},
+      order: {returned_at: 'DESC'},
     });
   }
 

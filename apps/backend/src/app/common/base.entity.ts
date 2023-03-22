@@ -1,4 +1,5 @@
 import {
+  Column,
   CreateDateColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -8,10 +9,12 @@ export abstract class BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @CreateDateColumn({type: 'timestamp'})
+  @Column({select:false})
   created_at: Date;
 
-  @UpdateDateColumn({ type: 'timestamp' })
+  @UpdateDateColumn({type: 'timestamp'})
+  @Column({select:false})
   updated_at: Date;
 
 }
