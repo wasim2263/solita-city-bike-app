@@ -11,11 +11,10 @@ export class Station extends BaseEntity {
   name: string;
   @Column({length: 500, nullable: true})
   address: string;
-  @Column('float', {nullable: true})
-
-  latitude: number;
   @Column('integer', {default: 0})
   capacities: number;
+  @Column('float', {nullable: true})
+  latitude: number;
   @Column('float', {nullable: true})
   longitude: number;
   @OneToMany(
