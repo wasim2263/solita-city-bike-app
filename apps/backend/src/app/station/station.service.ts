@@ -21,7 +21,60 @@ export class StationService {
     const queryBuilder = this.stationRepository.createQueryBuilder('stations')
       .loadRelationCountAndMap('stations.departure_journeys_count', 'stations.departure_journeys')
       .loadRelationCountAndMap('stations.return_journeys_count', 'stations.return_journeys');
-    return paginate<Station>(queryBuilder, options );
+    return paginate<Station>(queryBuilder, options);
+  }
+
+  private formatData(data) {
+    let stationData = {
+      station_id: 0,
+      name: "",
+      address: "",
+      capacities: 0,
+      latitude: 0,
+      longitude: 0
+    }
+    for (const [key, value] of Object.entries(data)) {
+      if (key.trim() == 'ID') {
+        stationData.station_id = <number>value;
+      } else if (key.trim() == 'Name') {
+        stationData.name = <string>value;
+      } else if (key.trim() == 'Adress') {
+        stationData.address = <string>value;
+      } else if (key.trim() == 'Kapasiteet') {
+        stationData.capacities = <number>value;
+      } else if (key.trim() == 'x') {
+        stationData.latitude = <number>value;
+      } else if (key.trim() == 'y') {
+        stationData.longitude = <number>value;
+      }
+    }
+    return stationData;
+  }
+
+  async bulkCreate(data: any[]) {
+    //   {
+    //     '﻿FID': '83',
+    //     ID: '713',
+    //     Nimi: 'Upseerinkatu',
+    //     Namn: 'Officersgatan',
+    //     Name: 'Upseerinkatu',
+    //     Osoite: 'Upseerinkatu 3',
+    //     Adress: 'Officersgatan 3',
+    //     Kaupunki: 'Espoo',
+    //     Stad: 'Esbo',
+    //     Operaattor: 'CityBike Finland',
+    //     Kapasiteet: '30',
+    //     x: '24.819396',
+    //     y: '60.216067'
+    //   },
+    console.log('total data', data.length)
+    let counter = 0;
+    for (const row of data) {
+      let stationData = this.formatData(row);
+      counter++
+      this.create(stationData);
+      console.log(counter);
+    }
   }
 
   async create(createStationDto: CreateStationDto) {

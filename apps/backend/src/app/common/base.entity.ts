@@ -10,11 +10,11 @@ export abstract class BaseEntity {
   id: string;
 
   @CreateDateColumn({type: 'timestamp'})
-  @Column({select:false})
+  // @Column({select:false})
   created_at: Date;
 
   @UpdateDateColumn({type: 'timestamp'})
-  @Column({select:false})
+  // @Column({select:false})
   updated_at: Date;
 
 }

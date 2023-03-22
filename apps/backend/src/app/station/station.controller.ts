@@ -28,8 +28,7 @@ export class StationController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@Body() fileUploadStationsDto: FileUploadStationsDto, @UploadedFile() file: Express.Multer.File) {
     const csvData = await this.fileUploadService.uploadFile(file.buffer);
-    console.log(csvData)
-    // this.stationService.bulkCreate(csvData);
+    this.stationService.bulkCreate(csvData);
   }
 
   @Post()
