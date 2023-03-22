@@ -6,6 +6,7 @@ import {StationService} from "../station/station.service";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Journey} from "./entities/journey.entity";
+import {IPaginationOptions, paginate, Pagination} from "nestjs-typeorm-paginate";
 
 @Injectable()
 export class JourneyService {
@@ -17,6 +18,18 @@ export class JourneyService {
     private journeyRepository: Repository<Journey>,
     private readonly stationService: StationService
   ) {
+  }
+
+  async paginateJourney(
+    options: IPaginationOptions,
+  ): Promise<Pagination<Journey>> {
+    return paginate<Journey>(this.journeyRepository, options, {
+      relations: [
+        'departure_station',
+        'return_station',
+      ],
+      order: {created_at: 'DESC'},
+    });
   }
 
   async uploadFile(buffer: Uint8Array): Promise<any[]> {
@@ -95,9 +108,9 @@ export class JourneyService {
     let counter = 0;
     for (const row of data) {
       let {returnStationData, departureStationData, journeyData} = this.formatData(row);
-      if(journeyData.covered_distance < 10 && journeyData.duration < 10){
+      if (journeyData.covered_distance < 10 && journeyData.duration < 10) {
         remaining--;
-      }else{
+      } else {
         // console.log(returnStationData, departureStationData, journeyData)
         const departureStation = await this.getOrCreateStation(departureStationData);
         const returnStation = await this.getOrCreateStation(returnStationData);
@@ -107,7 +120,7 @@ export class JourneyService {
         counter++;
       }
 
-      if (counter == 10000 || counter==remaining) {
+      if (counter == 10000 || counter == remaining) {
         console.log(counter, remaining)
         this.journeyRepository.insert(journeys)
         remaining -= counter;
