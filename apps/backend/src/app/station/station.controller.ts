@@ -5,15 +5,33 @@ import {
   Body,
   Patch,
   Param,
-  Delete, Query,
+  Delete, Query, UseInterceptors, UploadedFile,
 } from '@nestjs/common';
-import { StationService } from './station.service';
-import { CreateStationDto } from './dto/create-station.dto';
-import { UpdateStationDto } from './dto/update-station.dto';
+import {StationService} from './station.service';
+import {CreateStationDto} from './dto/create-station.dto';
+import {UpdateStationDto} from './dto/update-station.dto';
+import {ApiConsumes} from "@nestjs/swagger";
+import {FileInterceptor} from "@nestjs/platform-express";
+import {FileUploadJourniesDto} from "../journey/dto/file-upload-journies.dto";
+import {FileUploadStationsDto} from "./dto/file-upload-stations.dto";
+import {FileUploadService} from "../file-upload/file-upload.service";
 
 @Controller('station')
 export class StationController {
-  constructor(private readonly stationService: StationService) {}
+  constructor(
+    private readonly stationService: StationService,
+    private readonly fileUploadService: FileUploadService
+  ) {
+  }
+
+  @Post('upload')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@Body() fileUploadStationsDto: FileUploadStationsDto, @UploadedFile() file: Express.Multer.File) {
+    const csvData = await this.fileUploadService.uploadFile(file.buffer);
+    console.log(csvData)
+    // this.stationService.bulkCreate(csvData);
+  }
 
   @Post()
   create(@Body() createStationDto: CreateStationDto) {

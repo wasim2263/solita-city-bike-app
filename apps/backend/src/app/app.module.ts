@@ -4,8 +4,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JourneyModule } from './journey/journey.module';
 import { StationModule } from './station/station.module';
-import {Station} from "./station/entities/station.entity";
-import {Journey} from "./journey/entities/journey.entity";
+import { Station } from './station/entities/station.entity';
+import { Journey } from './journey/entities/journey.entity';
+import { FileUploadModule } from './file-upload/file-upload.module';
 
 @Module({
   imports: [
@@ -16,14 +17,13 @@ import {Journey} from "./journey/entities/journey.entity";
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [
-        Station,
-        Journey
-      ],
+      entities: [Station, Journey],
       synchronize: true,
     }),
     StationModule,
     JourneyModule,
+    FileUploadModule,
+    FileUploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
