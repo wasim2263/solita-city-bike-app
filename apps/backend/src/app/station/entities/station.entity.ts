@@ -9,6 +9,15 @@ export class Station extends BaseEntity {
   station_id: number;
   @Column({length: 500})
   name: string;
+  @Column({length: 500, nullable: true})
+  address: string;
+  @Column('float', {nullable: true})
+
+  latitude: number;
+  @Column('integer', {default: 0})
+  capacities: number;
+  @Column('float', {nullable: true})
+  longitude: number;
   @OneToMany(
     () => Journey,
     (journey) => journey.departure_station,
@@ -19,7 +28,7 @@ export class Station extends BaseEntity {
   departure_journeys: Journey[];
   @OneToMany(
     () => Journey,
-    (journey) => journey.return_station,{
+    (journey) => journey.return_station, {
       eager: true,
     }
   )
