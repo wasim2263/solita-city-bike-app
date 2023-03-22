@@ -140,8 +140,11 @@ export class JourneyService {
     return 'This action adds a new journey';
   }
 
-  findAll() {
-    return `This action returns all journey`;
+  findAll(page, limit) {
+    return this.paginateJourney({
+      page,
+      limit,
+    });
   }
 
   findOne(id: number) {

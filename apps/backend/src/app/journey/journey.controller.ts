@@ -5,7 +5,7 @@ import {
   Body,
   Patch,
   Param,
-  Delete, UploadedFile, UseInterceptors,
+  Delete, UploadedFile, UseInterceptors, Query,
 } from '@nestjs/common';
 import {JourneyService} from './journey.service';
 import {CreateJourneyDto} from './dto/create-journey.dto';
@@ -34,8 +34,8 @@ export class JourneyController {
   }
 
   @Get()
-  findAll() {
-    return this.journeyService.findAll();
+  findAll(@Query('page') page = 1, @Query('limit') limit = 10) {
+    return this.journeyService.findAll(page,limit);
   }
 
   @Get(':id')
