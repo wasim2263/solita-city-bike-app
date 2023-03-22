@@ -95,13 +95,18 @@ export class JourneyService {
     let counter = 0;
     for (const row of data) {
       let {returnStationData, departureStationData, journeyData} = this.formatData(row);
-      // console.log(returnStationData, departureStationData, journeyData)
-      const departureStation = await this.getOrCreateStation(departureStationData);
-      const returnStation = await this.getOrCreateStation(returnStationData);
-      journeyData.departure_station = departureStation;
-      journeyData.return_station = returnStation;
-      journeys.push(journeyData);
-      counter++;
+      if(journeyData.covered_distance < 10 && journeyData.duration < 10){
+        remaining--;
+      }else{
+        // console.log(returnStationData, departureStationData, journeyData)
+        const departureStation = await this.getOrCreateStation(departureStationData);
+        const returnStation = await this.getOrCreateStation(returnStationData);
+        journeyData.departure_station = departureStation;
+        journeyData.return_station = returnStation;
+        journeys.push(journeyData);
+        counter++;
+      }
+
       if (counter == 10000 || counter==remaining) {
         console.log(counter, remaining)
         this.journeyRepository.insert(journeys)
