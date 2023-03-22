@@ -14,22 +14,26 @@ export class StationService {
   ) {
 
   }
+
   async paginateStation(
     options: IPaginationOptions,
   ): Promise<Pagination<Station>> {
     return paginate<Station>(this.stationRepository, options, {
       relations: [],
-      order: { created_at: 'DESC' },
+      order: {created_at: 'DESC'},
     });
   }
+
   async create(createStationDto: CreateStationDto) {
     const station = await this.stationRepository.upsert(createStationDto, ['station_id']);
     return station;
   }
 
-  async findAll() {
-    const stations = await this.stationRepository.find();
-    return stations;
+  async findAll(page, limit) {
+    return this.paginateStation({
+      page,
+      limit,
+    });
   }
 
   findOne(id: number) {

@@ -5,7 +5,7 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
+  Delete, Query,
 } from '@nestjs/common';
 import { StationService } from './station.service';
 import { CreateStationDto } from './dto/create-station.dto';
@@ -21,8 +21,8 @@ export class StationController {
   }
 
   @Get()
-  findAll() {
-    return this.stationService.findAll();
+  findAll(@Query('page') page = 1, @Query('limit') limit = 10) {
+    return this.stationService.findAll(page, limit);
   }
 
   @Get(':id')
