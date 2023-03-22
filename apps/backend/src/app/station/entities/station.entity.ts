@@ -12,11 +12,16 @@ export class Station extends BaseEntity {
   @OneToMany(
     () => Journey,
     (journey) => journey.departure_station,
+    {
+      eager: true,
+    }
   )
   departure_journeys: Journey[];
   @OneToMany(
     () => Journey,
-    (journey) => journey.return_station,
+    (journey) => journey.return_station,{
+      eager: true,
+    }
   )
   return_journeys: Journey[];
 }

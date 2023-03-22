@@ -18,10 +18,10 @@ export class StationService {
   async paginateStation(
     options: IPaginationOptions,
   ): Promise<Pagination<Station>> {
-    return paginate<Station>(this.stationRepository, options, {
-      relations: [],
-      order: {created_at: 'DESC'},
-    });
+    const queryBuilder = this.stationRepository.createQueryBuilder('stations')
+      .loadRelationCountAndMap('stations.departure_journeys_count', 'stations.departure_journeys')
+      .loadRelationCountAndMap('stations.return_journeys_count', 'stations.return_journeys');
+    return paginate<Station>(queryBuilder, options );
   }
 
   async create(createStationDto: CreateStationDto) {
