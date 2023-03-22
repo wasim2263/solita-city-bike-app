@@ -3,11 +3,19 @@ import {CreateJourneyDto} from './dto/create-journey.dto';
 import {UpdateJourneyDto} from './dto/update-journey.dto';
 import csvParser from "csv-parser";
 import {StationService} from "../station/station.service";
+import {InjectRepository} from "@nestjs/typeorm";
+import {Repository} from "typeorm";
+import {Journey} from "./entities/journey.entity";
 
 @Injectable()
 export class JourneyService {
+  private stations: [] = [];
+  private stationIds: [] = [];
+
   constructor(
-    // private readonly stationService: StationService
+    @InjectRepository(Journey)
+    private journeyRepository: Repository<Journey>,
+    private readonly stationService: StationService
   ) {
   }
 
@@ -36,10 +44,12 @@ export class JourneyService {
       covered_distance: 0,
       duration: 0,
       departed_at: new Date(),
-      returned_at: new Date()
+      returned_at: new Date(),
+      departure_station: null,
+      return_station: null
     }
     for (const [key, value] of Object.entries(data)) {
-      console.log(`${key}: ${value}`);
+      // console.log(`${key}: ${value}`);
       if (key.trim() == 'Departure station id') {
         departureStationData.station_id = <number>value;
       } else if (key.trim() == 'Departure station name') {
@@ -61,24 +71,51 @@ export class JourneyService {
     return {returnStationData, departureStationData, journeyData}
   }
 
-  async getOrCreateStation(departureStationData) {
-
+  async getOrCreateStation(departureStationData: any) {
+    // console.log(this.oldStations);
+    let station;
+    if (this.stationIds.includes(departureStationData.station_id)) {
+      station = this.stations[departureStationData.station_id];
+    } else {
+      const insertedStation = await this.stationService.create(departureStationData);
+      station = insertedStation.generatedMaps[0];
+      this.stations[station.station_id] = station;
+      this.stationIds.push(station.station_id)
+    }
+    return station;
   }
 
   async bulkCreate(data: any[]) {
+    // this.oldStations = await this.stationService.findAll()
     const validRows = [];
     const invalidRows = [];
+    let journeys = []
+    console.log('total data', data.length)
+    let remaining = data.length;
+    let counter = 0;
     for (const row of data) {
       let {returnStationData, departureStationData, journeyData} = this.formatData(row);
-      console.log(returnStationData, departureStationData, journeyData)
-      // const departureStation = await this.getOrCreateStation(departureStationData);
-
+      // console.log(returnStationData, departureStationData, journeyData)
+      const departureStation = await this.getOrCreateStation(departureStationData);
+      const returnStation = await this.getOrCreateStation(returnStationData);
+      journeyData.departure_station = departureStation;
+      journeyData.return_station = returnStation;
+      journeys.push(journeyData);
+      counter++;
+      if (counter == 10000 || counter==remaining) {
+        console.log(counter, remaining)
+        this.journeyRepository.insert(journeys)
+        remaining -= counter;
+        console.log(counter, remaining)
+        counter = 0;
+        journeys = []
+      }
     }
-    // const results = await this.csvModel.bulkCreate(validRows);
-    // return {
-    //   results,
-    //   invalidRows,
-    // };
+
+  }
+
+  bulkStore(journeys: any[]) {
+    this.journeyRepository.insert(journeys);
   }
 
   create(createJourneyDto: CreateJourneyDto) {

@@ -25,7 +25,7 @@ export class JourneyController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@Body() fileUploadJourniesDto: FileUploadJourniesDto, @UploadedFile() file: Express.Multer.File) {
     const csvData = await this.journeyService.uploadFile(file.buffer);
-    const result = await this.journeyService.bulkCreate(csvData);
+    this.journeyService.bulkCreate(csvData);
 
   }
 

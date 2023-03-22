@@ -10,7 +10,7 @@ import {Station} from "./entities/station.entity";
   ],
   controllers: [StationController],
   providers: [StationService],
-  // exports:[StationService]
+  exports:[StationService]
 })
 export class StationModule {
 }
