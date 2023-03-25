@@ -2,13 +2,20 @@
 import styles from './app.module.css';
 
 
-import { Route, Routes, Link } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import JourneyList from "./journey-list/journey-list";
 import StationList from "./station-list/station-list";
+import {Header} from "./header/header";
 
 export function App() {
+  const navigate = useNavigate();
+
+  const handleNavigation = (page: string) => {
+    navigate(page);
+  }
   return (
     <div className="App">
+      <Header handleNavigation={handleNavigation}/>
       <Routes>
         <Route
           path="/journeys"
