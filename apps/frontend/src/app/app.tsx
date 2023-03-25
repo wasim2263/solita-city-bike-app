@@ -3,7 +3,7 @@ import styles from './app.module.css';
 
 
 import { Route, Routes, useNavigate } from 'react-router-dom';
-import JourneyList from "./journey-list/journey-list";
+import {JourneyList} from "./journey-list/journey-list";
 import StationList from "./station-list/station-list";
 import {Header} from "./header/header";
 

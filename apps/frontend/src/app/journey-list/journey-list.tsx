@@ -1,9 +1,10 @@
 import styles from './journey-list.module.css';
 
 /* eslint-disable-next-line */
-export interface JourneyListProps {}
+export interface JourneyListProps {
+}
 
-export function JourneyList(props: JourneyListProps) {
+export const JourneyList = (props: JourneyListProps) => {
   return (
     <div className={styles['container']}>
       <h1>Welcome to JourneyList!</h1>
@@ -11,4 +12,3 @@ export function JourneyList(props: JourneyListProps) {
   );
 }
 
-export default JourneyList;
