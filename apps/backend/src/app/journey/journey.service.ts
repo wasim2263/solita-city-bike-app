@@ -6,6 +6,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Journey} from "./entities/journey.entity";
 import {IPaginationOptions, paginate, Pagination} from "nestjs-typeorm-paginate";
+import {Station} from "../station/entities/station.entity";
 
 @Injectable()
 export class JourneyService {
@@ -22,13 +23,11 @@ export class JourneyService {
   async paginateJourney(
     options: IPaginationOptions,
   ): Promise<Pagination<Journey>> {
-    return paginate<Journey>(this.journeyRepository, options, {
-      relations: [
-        'departure_station',
-        'return_station',
-      ],
-      order: {returned_at: 'DESC'},
-    });
+    const queryBuilder = this.journeyRepository.createQueryBuilder('journeys')
+      .leftJoinAndSelect('journeys.departure_station', 'departure_station')
+      .leftJoinAndSelect('journeys.return_station', 'return_station');
+    return paginate<Journey>(queryBuilder, options);
+
   }
 
   private formatData(data) {
@@ -128,6 +127,7 @@ export class JourneyService {
   }
 
   findAll(page, limit) {
+    // return 'wasim'
     return this.paginateJourney({
       page,
       limit,
