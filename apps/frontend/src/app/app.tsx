@@ -3,9 +3,10 @@ import styles from './app.module.css';
 
 
 import {Route, Routes, useNavigate} from 'react-router-dom';
-import {JourneyList} from "./journey-list/journey-list";
-import {StationList} from "./station-list/station-list";
+import {JourneyList} from "./journey/journey-list";
+import {StationList} from "./station/station-list";
 import {Header} from "./header/header";
+import {StationDetails} from "./station/station-details";
 
 export function App() {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ export function App() {
           path="/stations"
           element={<StationList/>}
         />
+        <Route path="/stations/:id" element={<StationDetails/>}/>
       </Routes>
     </div>
   );
