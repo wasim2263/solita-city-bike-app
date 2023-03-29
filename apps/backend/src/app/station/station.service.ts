@@ -89,8 +89,11 @@ export class StationService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} station`;
+  findOne(id: string) {
+    console.log(id);
+    return this.stationRepository.createQueryBuilder('stations')
+      .where('stations.id = :id', {id: id})
+      .getOne();
   }
 
   update(id: number, updateStationDto: UpdateStationDto) {

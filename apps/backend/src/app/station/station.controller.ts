@@ -42,8 +42,8 @@ export class StationController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.stationService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return this.stationService.findOne(id);
   }
 
   @Patch(':id')
