@@ -31,7 +31,7 @@ export const  StationList = (props: StationListProps)  =>{
       setStationCount(data.meta.totalItems)
       console.log(stations)
     }
-    const url = `/api/station?page=${controller.page+1}&limit=${controller.rowsPerPage}`
+    const url = `/api/stations?page=${controller.page+1}&limit=${controller.rowsPerPage}`
     const promise = axios.get(url)
     promise.then(eventHandler)
   }

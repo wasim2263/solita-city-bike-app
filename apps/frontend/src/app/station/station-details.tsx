@@ -21,12 +21,10 @@ export const StationDetails = (props: StationDetailsProps) =>{
   const hook = () => {
     const eventHandler = (response: any) => {
       console.log('promise fulfilled')
-      console.log(response.data)
       const data = response.data
       setStation(data)
-      console.log(data)
     }
-    const url = `/api/station/${id}`
+    const url = `/api/stations/${id}`
     const promise = axios.get(url)
     promise.then(eventHandler)
   }

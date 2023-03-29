@@ -54,7 +54,7 @@ export const JourneyList = (props: JourneyListProps) => {
       setJourneyCount(data.meta.totalItems)
       console.log(journeys)
     }
-    const url = `/api/journey?page=${controller.page+1}&limit=${controller.rowsPerPage}`
+    const url = `/api/journeys?page=${controller.page+1}&limit=${controller.rowsPerPage}`
     const promise = axios.get(url)
     promise.then(eventHandler)
   }

@@ -15,7 +15,7 @@ import {FileInterceptor} from "@nestjs/platform-express";
 import {FileUploadStationsDto} from "./dto/file-upload-stations.dto";
 import {FileUploadService} from "../file-upload/file-upload.service";
 
-@Controller('station')
+@Controller('stations')
 export class StationController {
   constructor(
     private readonly stationService: StationService,

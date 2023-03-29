@@ -16,7 +16,7 @@ import {ApiConsumes} from "@nestjs/swagger";
 import {FileUploadJourniesDto} from "./dto/file-upload-journies.dto";
 import {FileUploadService} from "../file-upload/file-upload.service";
 
-@Controller('journey')
+@Controller('journeys')
 export class JourneyController {
   constructor(
     private readonly journeyService: JourneyService,
