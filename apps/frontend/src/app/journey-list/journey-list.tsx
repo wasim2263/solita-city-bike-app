@@ -30,8 +30,6 @@ interface Station {
 
 interface Journey {
   id: string;
-  created_at: string;
-  updated_at: string;
   covered_distance: number;
   duration: number;
   departed_at: string;
