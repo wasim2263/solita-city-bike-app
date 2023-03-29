@@ -1,5 +1,6 @@
 import {useParams} from "react-router-dom";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import axios from "axios";
 
 export interface StationDetailsProps {
 }
@@ -17,7 +18,19 @@ interface Station {
 export const StationDetails = (props: StationDetailsProps) =>{
   let {id} = useParams();
   const [station, setStation] = useState<Station>()
-
+  const hook = () => {
+    const eventHandler = (response: any) => {
+      console.log('promise fulfilled')
+      console.log(response.data)
+      const data = response.data
+      setStation(data)
+      console.log(data)
+    }
+    const url = `/api/station/${id}`
+    const promise = axios.get(url)
+    promise.then(eventHandler)
+  }
+  useEffect(hook, [id])
   return(
     <>
     <div>
