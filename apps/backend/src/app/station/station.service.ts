@@ -5,12 +5,17 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Station} from "./entities/station.entity";
 import {Repository} from "typeorm";
 import {IPaginationOptions, paginate, Pagination} from "nestjs-typeorm-paginate";
+import {groupBy} from "rxjs";
+
+import {Journey} from "../journey/entities/journey.entity";
 
 @Injectable()
 export class StationService {
   constructor(
     @InjectRepository(Station)
-    private stationRepository: Repository<Station>
+    private stationRepository: Repository<Station>,
+    @InjectRepository(Journey)
+    private journeyRepository: Repository<Journey>,
   ) {
 
   }
@@ -93,9 +98,58 @@ export class StationService {
     console.log(id);
     return this.stationRepository.createQueryBuilder('stations')
       .where('stations.id = :id', {id: id})
-      .loadRelationCountAndMap('stations.departure_journeys_count', 'stations.departure_journeys')
-      .loadRelationCountAndMap('stations.return_journeys_count', 'stations.return_journeys')
+      // .leftJoinAndSelect('stations.departure_journeys', 'stations.departure_journeys', )
       .getOne();
+  }
+
+  async getStatistics(id: string) {
+    console.log(id);
+    const journeyQueryBuilder = await this.journeyRepository.createQueryBuilder('journeys');
+    const departureJourney = await journeyQueryBuilder
+      .where('journeys.departureStationId = :id', {id: id})
+      .select('SUM(journeys.duration)', 'duration')
+      .addSelect('COUNT(journeys.id)', 'journey_count')
+      .groupBy('journeys.departureStationId')
+      .getRawOne();
+    const returnJourney = await journeyQueryBuilder
+      .where('journeys.returnStationId = :id', {id: id})
+      .select('SUM(journeys.duration)', 'duration')
+      .addSelect('COUNT(journeys.id)', 'journey_count')
+      .groupBy('journeys.returnStationId')
+      .getRawOne();
+    const topFiveReturnStations = await journeyQueryBuilder
+      .where('journeys.departureStationId = :id', {id: id})
+      .select('journeys.returnStationId')
+      .addSelect('COUNT(journeys.id)', 'journey_count')
+      .groupBy('journeys.returnStationId')
+      .orderBy('journey_count', 'DESC')
+      .limit(5)
+      .getRawMany();
+    const topFiveDepartureStations = await journeyQueryBuilder
+      .where('journeys.returnStationId = :id', {id: id})
+      .select('journeys.departureStationId')
+      .addSelect('COUNT(journeys.id)', 'journey_count')
+      .groupBy('journeys.departureStationId')
+      .orderBy('journey_count', 'DESC')
+      .limit(5)
+      .getRawMany();
+    let stationIds = topFiveReturnStations.map(station =>
+      station.returnStationId
+    ).concat(topFiveDepartureStations.map(station =>
+      station.departureStationId
+    ))
+    const topStationsData = await this.stationRepository.createQueryBuilder('stations')
+      .whereInIds(stationIds)
+      .getMany()
+
+
+    return {
+      departure_journey: departureJourney,
+      return_journey: returnJourney,
+      top_5_return_stations: topFiveReturnStations,
+      top_5_departure_stations: topFiveDepartureStations,
+      test: topStationsData
+    }
   }
 
   update(id: number, updateStationDto: UpdateStationDto) {
@@ -105,4 +159,5 @@ export class StationService {
   remove(id: number) {
     return `This action removes a #${id} station`;
   }
+
 }

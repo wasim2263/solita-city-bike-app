@@ -45,6 +45,10 @@ export class StationController {
   async findOne(@Param('id') id: string) {
     return this.stationService.findOne(id);
   }
+  @Get(':id/statistics')
+  async getStatistics(@Param('id') id: string) {
+    return this.stationService.getStatistics(id);
+  }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateStationDto: UpdateStationDto) {

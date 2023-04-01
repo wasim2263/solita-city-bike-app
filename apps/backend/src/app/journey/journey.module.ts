@@ -1,4 +1,4 @@
-import {Module} from '@nestjs/common';
+import {forwardRef, Module} from '@nestjs/common';
 import {JourneyService} from './journey.service';
 import {JourneyController} from './journey.controller';
 import {StationModule} from "../station/station.module";
@@ -9,9 +9,9 @@ import {FileUploadModule} from "../file-upload/file-upload.module";
 @Module({
   imports: [
     FileUploadModule,
-    StationModule,
     TypeOrmModule.forFeature([
       Journey]),
+    forwardRef(()=>StationModule)
   ],
   controllers: [JourneyController],
   providers: [JourneyService],
