@@ -107,13 +107,13 @@ export class StationService {
     const journeyQueryBuilder = await this.journeyRepository.createQueryBuilder('journeys');
     const departureJourney = await journeyQueryBuilder
       .where('journeys.departureStationId = :id', {id: id})
-      .select('SUM(journeys.duration)', 'duration')
+      .select('SUM(journeys.covered_distance)/1000', 'covered_distance')
       .addSelect('COUNT(journeys.id)', 'journey_count')
       .groupBy('journeys.departureStationId')
       .getRawOne();
     const returnJourney = await journeyQueryBuilder
       .where('journeys.returnStationId = :id', {id: id})
-      .select('SUM(journeys.duration)', 'duration')
+      .select('SUM(journeys.covered_distance)/1000', 'covered_distance')
       .addSelect('COUNT(journeys.id)', 'journey_count')
       .groupBy('journeys.returnStationId')
       .getRawOne();
@@ -148,7 +148,7 @@ export class StationService {
       return_journey: returnJourney,
       top_5_return_stations: topFiveReturnStations,
       top_5_departure_stations: topFiveDepartureStations,
-      test: topStationsData
+      top_stations: topStationsData
     }
   }
 
