@@ -93,6 +93,8 @@ export class StationService {
     console.log(id);
     return this.stationRepository.createQueryBuilder('stations')
       .where('stations.id = :id', {id: id})
+      .loadRelationCountAndMap('stations.departure_journeys_count', 'stations.departure_journeys')
+      .loadRelationCountAndMap('stations.return_journeys_count', 'stations.return_journeys')
       .getOne();
   }
 
