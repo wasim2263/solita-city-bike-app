@@ -119,7 +119,7 @@ export class StationService {
       .getRawOne();
     const topFiveReturnStations = await journeyQueryBuilder
       .where('journeys.departureStationId = :id', {id: id})
-      .select('journeys.returnStationId')
+      .select('journeys.returnStationId', 'station_id')
       .addSelect('COUNT(journeys.id)', 'journey_count')
       .groupBy('journeys.returnStationId')
       .orderBy('journey_count', 'DESC')
@@ -127,16 +127,16 @@ export class StationService {
       .getRawMany();
     const topFiveDepartureStations = await journeyQueryBuilder
       .where('journeys.returnStationId = :id', {id: id})
-      .select('journeys.departureStationId')
+      .select('journeys.departureStationId', 'station_id')
       .addSelect('COUNT(journeys.id)', 'journey_count')
       .groupBy('journeys.departureStationId')
       .orderBy('journey_count', 'DESC')
       .limit(5)
       .getRawMany();
     let stationIds = topFiveReturnStations.map(station =>
-      station.returnStationId
+      station.station_id
     ).concat(topFiveDepartureStations.map(station =>
-      station.departureStationId
+      station.station_id
     ))
     const topStationsData = await this.stationRepository.createQueryBuilder('stations')
       .whereInIds(stationIds)
