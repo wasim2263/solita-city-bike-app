@@ -133,11 +133,12 @@ export const StationDetails = (props: StationDetailsProps) => {
             key={station.id}>{station.name} ({station.journey_count} times),</li>)}
           </ul>
         </Typography>
+        <Typography sx={{mt: 1.5}}  color="text.secondary">
+
+        </Typography>
 
       </CardContent>
-      {/*<CardActions>*/}
-      {/*  <Button size="small">Learn More</Button>*/}
-      {/*</CardActions>*/}
+
     </Card>
   );
 

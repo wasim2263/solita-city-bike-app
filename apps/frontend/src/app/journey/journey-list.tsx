@@ -91,7 +91,7 @@ export const JourneyList = (props: JourneyListProps) => {
               Return Station
             </TableCell>
             <TableCell>
-              Duration (seconds)
+              Duration (minutes)
             </TableCell>
             <TableCell >
               Distance Covered (kilometers)
