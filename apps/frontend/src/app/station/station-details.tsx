@@ -20,7 +20,7 @@ interface Station {
 type TopStation = { journey_count: string, name: string, id: string };
 
 type Journey = {
-  covered_distance: string;
+  covered_distance: number;
   journey_count: string;
 };
 
@@ -30,7 +30,7 @@ type StationWithCount = {
 };
 
 export const StationDetails = (props: StationDetailsProps) => {
-  let {id} = useParams();
+  const {id} = useParams();
   const [station, setStation] = useState<Station>({
     name: "",
     address: "",
@@ -40,20 +40,24 @@ export const StationDetails = (props: StationDetailsProps) => {
     longitude: 0
   })
   const [departureJourney, setDepartureJourney] = useState<Journey>({
-    covered_distance: "0",
+    covered_distance: 0,
     journey_count: "0"
   })
   const [returnJourney, setReturnJourney] = useState<Journey>({
-    covered_distance: "0",
+    covered_distance: 0,
     journey_count: "0"
   })
   const [topFiveDepartureStations, setTopFiveDepartureStations] = useState<TopStation[]>([])
   const [topFiveReturnStations, setTopFiveReturnStations] = useState<TopStation[]>([])
+  const [allMonths, setAllMonths] = useState<string[]>([])
+  const [selectedMonth, setSelectedMonth] = useState('');
+
   const stationDetailsHook = () => {
     const eventHandler = (response: any) => {
       console.log('promise fulfilled')
       const data = response.data
-      setStation(data)
+      setStation(data.station)
+      setAllMonths(data.months)
     }
     const url = `/api/stations/${id}`
     const promise = axios.get(url)
@@ -92,13 +96,20 @@ export const StationDetails = (props: StationDetailsProps) => {
       setTopFiveDepartureStations(buildTopFiveDepartureStations);
       setTopFiveReturnStations(buildTopFiveReturnStations);
     }
-    const url = `/api/stations/${id}/statistics`
+    let url = `/api/stations/${id}/statistics`
+    if(selectedMonth != 'all'){
+      url +=`?month=${selectedMonth}`
+    }
     const promise = axios.get(url)
     promise.then(eventHandler)
 
   }
 
-  useEffect(stationStatisticsHook, [id])
+  useEffect(stationStatisticsHook, [selectedMonth])
+  const handleOptionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedMonth(event.target.value);
+  };
+
   return (
     <div>
       <Card sx={{minWidth: 500}}>
@@ -108,6 +119,17 @@ export const StationDetails = (props: StationDetailsProps) => {
           </Typography>
           <Typography variant="h6" color="text.secondary" component="div">
             Address: {station.address}
+          </Typography>
+          <Typography sx={{mt: 3, mb: 1.5}} color="text.secondary">
+            Statistics:
+            <select id="options" value={selectedMonth} onChange={handleOptionChange}>
+              <option value="all">All</option>
+              {allMonths.map((month) => (
+                <option key={month} value={month}>
+                  {month}
+                </option>
+              ))}
+            </select>
           </Typography>
           <Typography sx={{mt: 1.5}} color="text.secondary">
             Total number of journeys starting from the station: {departureJourney.journey_count}
@@ -144,10 +166,8 @@ export const StationDetails = (props: StationDetailsProps) => {
         </CardContent>
 
       </Card>
-      {station.latitude != 0 && station.longitude != 0 ?
+      {station.latitude !== 0 && station.longitude !== 0 ?
         <Map center={{lat: station.latitude, lng: station.longitude}}/> : <></>}
-
-
     </div>
   );
 

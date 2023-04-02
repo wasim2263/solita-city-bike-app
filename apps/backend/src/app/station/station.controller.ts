@@ -14,6 +14,7 @@ import {ApiConsumes} from "@nestjs/swagger";
 import {FileInterceptor} from "@nestjs/platform-express";
 import {FileUploadStationsDto} from "./dto/file-upload-stations.dto";
 import {FileUploadService} from "../file-upload/file-upload.service";
+import {ApiImplicitQuery} from "@nestjs/swagger/dist/decorators/api-implicit-query.decorator";
 
 @Controller('stations')
 export class StationController {
@@ -43,11 +44,20 @@ export class StationController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.stationService.findOne(id);
+    const station = await  this.stationService.findOne(id);
+    const months = await  this.stationService.getMonths(id);
+    console.log(months)
+    return {station:station, months:months}
   }
+  @ApiImplicitQuery({
+    name: "month",
+    description: "The maximum number of transactions to return",
+    required: false,
+    type: String
+  })
   @Get(':id/statistics')
-  async getStatistics(@Param('id') id: string) {
-    return this.stationService.getStatistics(id);
+  async getStatistics(@Param('id') id: string, @Query('month') month?: string) {
+    return this.stationService.getStatistics(id, month);
   }
 
   @Patch(':id')

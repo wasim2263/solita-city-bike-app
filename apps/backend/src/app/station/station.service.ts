@@ -98,42 +98,110 @@ export class StationService {
     console.log(id);
     return this.stationRepository.createQueryBuilder('stations')
       .where('stations.id = :id', {id: id})
-      // .leftJoinAndSelect('stations.departure_journeys', 'stations.departure_journeys', )
       .getOne();
   }
 
-  async getStatistics(id: string) {
-    console.log(id);
-    const journeyQueryBuilder = await this.journeyRepository.createQueryBuilder('journeys');
-    const departureJourney = await journeyQueryBuilder
+  async getMonths(id: string) {
+    const dateRange = await this.journeyRepository.createQueryBuilder('journeys')
       .where('journeys.departureStationId = :id', {id: id})
+      .orWhere('journeys.returnStationId = :id', {id: id})
+      .select('MIN(journeys.departed_at)')
+      .addSelect('MAX(journeys.returned_at)')
+      .getRawOne();
+    const startDate = new Date(dateRange.min);
+    const endDate = new Date(dateRange.max);
+    // const yearDifference = endDate.getFullYear()- startDate.getFullYear()
+    let totalMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12;
+    totalMonths -= startDate.getMonth();
+    totalMonths += endDate.getMonth();
+    endDate.setDate(31)
+    startDate.setDate(1)
+    console.log(startDate, endDate)
+    console.log(startDate.getMonth(), endDate.getMonth(), dateRange, totalMonths)
+// Initialize the array of months and years
+    const months = [];
+    for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
+      const year = d.getFullYear();
+      console.log(d)
+      console.log(year)
+      console.log(d.getUTCMonth())
+      const month = d.toLocaleString('default', {month: 'long'});
+      months.push(`${month} ${year}`);
+      if (d.getFullYear() === endDate.getFullYear() && d.getMonth() === endDate.getMonth()) {
+        break;
+      }
+    }
+
+    return months
+  }
+
+  async getStatistics(id: string, month: string) {
+    console.log(id);
+    let startDate: null | Date
+    let endDate: null | Date
+    let dateMonth: null | Date
+    if (month) {
+      const [m, y] = month.split(' ');
+      dateMonth = new Date(`${m} 1, ${y}`);
+      startDate = new Date(dateMonth.getFullYear(), dateMonth.getMonth(), 1);
+      endDate = new Date(dateMonth.getFullYear(), dateMonth.getMonth() + 1, 0, 23, 59);
+      console.log('---------', startDate, endDate, m, startDate.getMonth(), endDate.getMonth())
+    }
+
+    let departureJourneyQuery =  this.journeyRepository.createQueryBuilder('journeys')
+      .where('journeys.departureStationId = :id', {id: id})
+    let returnJourneyQuery = this.journeyRepository.createQueryBuilder('journeys')
+      .where('journeys.returnStationId = :id', {id: id})
+    let topFiveReturnStationsQuery = this.journeyRepository.createQueryBuilder('journeys')
+      .where('journeys.departureStationId = :id', {id: id})
+    let topFiveDepartureStationsQuery = this.journeyRepository.createQueryBuilder('journeys')
+      .where('journeys.returnStationId = :id', {id: id})
+    if (startDate && endDate) {
+      departureJourneyQuery = departureJourneyQuery.andWhere("(journeys.departed_at BETWEEN :startDate AND :endDate or journeys.returned_at BETWEEN :startDate AND :endDate)", {
+        startDate,
+        endDate,
+      });
+      returnJourneyQuery = returnJourneyQuery.andWhere("(journeys.departed_at BETWEEN :startDate AND :endDate or journeys.returned_at BETWEEN :startDate AND :endDate)", {
+        startDate,
+        endDate,
+      });
+
+      topFiveReturnStationsQuery = topFiveReturnStationsQuery.andWhere("(journeys.departed_at BETWEEN :startDate AND :endDate or journeys.returned_at BETWEEN :startDate AND :endDate)", {
+        startDate,
+        endDate,
+      });
+      topFiveDepartureStationsQuery = topFiveDepartureStationsQuery
+        .andWhere("(journeys.departed_at BETWEEN :startDate AND :endDate or journeys.returned_at BETWEEN :startDate AND :endDate)", {
+          startDate,
+          endDate,
+        });
+    }
+    const departureJourney = await departureJourneyQuery
       .select('SUM(journeys.covered_distance)/1000', 'covered_distance')
       .addSelect('COUNT(journeys.id)', 'journey_count')
       .groupBy('journeys.departureStationId')
       .getRawOne();
-    const returnJourney = await journeyQueryBuilder
-      .where('journeys.returnStationId = :id', {id: id})
+    const returnJourney = await returnJourneyQuery
       .select('SUM(journeys.covered_distance)/1000', 'covered_distance')
       .addSelect('COUNT(journeys.id)', 'journey_count')
       .groupBy('journeys.returnStationId')
       .getRawOne();
-    const topFiveReturnStations = await journeyQueryBuilder
-      .where('journeys.departureStationId = :id', {id: id})
+
+    const topFiveReturnStations = await topFiveReturnStationsQuery
       .select('journeys.returnStationId', 'station_id')
       .addSelect('COUNT(journeys.id)', 'journey_count')
       .groupBy('journeys.returnStationId')
       .orderBy('journey_count', 'DESC')
       .limit(5)
       .getRawMany();
-    const topFiveDepartureStations = await journeyQueryBuilder
-      .where('journeys.returnStationId = :id', {id: id})
-      .select('journeys.departureStationId', 'station_id')
+
+    const topFiveDepartureStations = await topFiveDepartureStationsQuery.select('journeys.departureStationId', 'station_id')
       .addSelect('COUNT(journeys.id)', 'journey_count')
       .groupBy('journeys.departureStationId')
       .orderBy('journey_count', 'DESC')
       .limit(5)
       .getRawMany();
-    let stationIds = topFiveReturnStations.map(station =>
+    const stationIds = topFiveReturnStations.map(station =>
       station.station_id
     ).concat(topFiveDepartureStations.map(station =>
       station.station_id
