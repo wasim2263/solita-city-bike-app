@@ -47,9 +47,9 @@ export class StationService {
         stationData.address = <string>value;
       } else if (key.trim() == 'Kapasiteet') {
         stationData.capacities = <number>value;
-      } else if (key.trim() == 'x') {
-        stationData.latitude = <number>value;
       } else if (key.trim() == 'y') {
+        stationData.latitude = <number>value;
+      } else if (key.trim() == 'x') {
         stationData.longitude = <number>value;
       }
     }

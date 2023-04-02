@@ -1,7 +1,8 @@
 import {useParams} from "react-router-dom";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
 import {Button, Card, CardActions, CardContent, Typography} from "@mui/material";
+import {Map} from "./google-map";
 
 export interface StationDetailsProps {
 }
@@ -11,6 +12,8 @@ interface Station {
   name: string;
   address: string;
   capacities: number;
+  latitude: number;
+  longitude: number;
 
 }
 
@@ -33,6 +36,8 @@ export const StationDetails = (props: StationDetailsProps) => {
     address: "",
     capacities: 0,
     id: "",
+    latitude: 0,
+    longitude: 0
   })
   const [departureJourney, setDepartureJourney] = useState<Journey>({
     covered_distance: "0",
@@ -83,7 +88,7 @@ export const StationDetails = (props: StationDetailsProps) => {
           name: matchedStation ? matchedStation.name : "Unknown Station"
         }
       });
-      console.log(topFiveDepartureStations)
+      console.log(station)
       setTopFiveDepartureStations(buildTopFiveDepartureStations);
       setTopFiveReturnStations(buildTopFiveReturnStations);
     }
@@ -95,51 +100,55 @@ export const StationDetails = (props: StationDetailsProps) => {
 
   useEffect(stationStatisticsHook, [id])
   return (
-    <Card sx={{minWidth: 500}}>
-      <CardContent>
-        <Typography variant="h4" gutterBottom>
-          Station Name: {station.name}
-        </Typography>
-        <Typography variant="h6"  color="text.secondary" component="div">
-          Address: {station.address}
-        </Typography>
-        <Typography sx={{mt: 1.5}} color="text.secondary">
-          Total number of journeys starting from the station: {departureJourney.journey_count}
-        </Typography>
-        <Typography color="text.secondary">
-          Total number of journeys ending at the station: {returnJourney.journey_count}
-        </Typography>
-        <Typography sx={{mt: 1.5}}  color="text.secondary">
-          The average distance of a journey starting from the
-          station: {Number(departureJourney.journey_count) > 0 ? (Number(departureJourney.covered_distance) / Number(departureJourney.journey_count)).toFixed(2) : "0"} km
-        </Typography>
+    <div>
+      <Card sx={{minWidth: 500}}>
+        <CardContent>
+          <Typography variant="h4" gutterBottom>
+            Station Name: {station.name}
+          </Typography>
+          <Typography variant="h6" color="text.secondary" component="div">
+            Address: {station.address}
+          </Typography>
+          <Typography sx={{mt: 1.5}} color="text.secondary">
+            Total number of journeys starting from the station: {departureJourney.journey_count}
+          </Typography>
+          <Typography color="text.secondary">
+            Total number of journeys ending at the station: {returnJourney.journey_count}
+          </Typography>
+          <Typography sx={{mt: 1.5}} color="text.secondary">
+            The average distance of a journey starting from the
+            station: {Number(departureJourney.journey_count) > 0 ? (Number(departureJourney.covered_distance) / Number(departureJourney.journey_count)).toFixed(2) : "0"} km
+          </Typography>
 
-        <Typography  color="text.secondary">
-          The average distance of a journey ending at the
-          station: {Number(returnJourney.journey_count) > 0 ? (Number(returnJourney.covered_distance) / Number(returnJourney.journey_count)).toFixed(2) : "0"} km
-        </Typography>
-        <Typography sx={{mt: 1.5}}  color="text.secondary">
-          Top 5 most popular return stations for journeys starting from the
-          station:
-          <ul>
-            {topFiveReturnStations.map(station => <li
+          <Typography color="text.secondary">
+            The average distance of a journey ending at the
+            station: {Number(returnJourney.journey_count) > 0 ? (Number(returnJourney.covered_distance) / Number(returnJourney.journey_count)).toFixed(2) : "0"} km
+          </Typography>
+          <Typography sx={{mt: 1.5}} color="text.secondary">
+            Top 5 most popular return stations for journeys starting from the
+            station:
+            <ul>
+              {topFiveReturnStations.map(station => <li
+                key={station.id}>{station.name} ({station.journey_count} times),</li>)}
+            </ul>
+          </Typography>
+          <Typography sx={{mt: 1.5}} color="text.secondary">
+            Top 5 most popular departure stations for journeys ending at the
+            station:
+            <ul> {topFiveDepartureStations.map(station => <li
               key={station.id}>{station.name} ({station.journey_count} times),</li>)}
-          </ul>
-        </Typography>
-        <Typography sx={{mt: 1.5}}  color="text.secondary">
-          Top 5 most popular departure stations for journeys ending at the
-          station:
-          <ul> {topFiveDepartureStations.map(station => <li
-            key={station.id}>{station.name} ({station.journey_count} times),</li>)}
-          </ul>
-        </Typography>
-        <Typography sx={{mt: 1.5}}  color="text.secondary">
+            </ul>
+          </Typography>
 
-        </Typography>
 
-      </CardContent>
+        </CardContent>
 
-    </Card>
+      </Card>
+      {station.latitude != 0 && station.longitude != 0 ?
+        <Map center={{lat: station.latitude, lng: station.longitude}}/> : <></>}
+
+
+    </div>
   );
 
 }
