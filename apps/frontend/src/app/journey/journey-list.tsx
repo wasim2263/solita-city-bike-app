@@ -11,6 +11,7 @@ import {
 import {useEffect, useState} from "react";
 import axios from "axios";
 import * as process from "process";
+import {Search} from "../search/search";
 
 /* eslint-disable-next-line */
 export interface JourneyListProps {
@@ -43,7 +44,8 @@ export const JourneyList = (props: JourneyListProps) => {
   const [journeyCount, setJourneyCount] = useState(0)
   const [controller, setController] = useState({
     page: 0,
-    rowsPerPage: 10
+    rowsPerPage: 10,
+    search: ""
   });
   const hook = () => {
     const eventHandler = (response: any) => {
@@ -54,27 +56,31 @@ export const JourneyList = (props: JourneyListProps) => {
       setJourneyCount(data.meta.totalItems)
       console.log(journeys)
     }
-    const url = `/api/journeys?page=${controller.page+1}&limit=${controller.rowsPerPage}`
+    const url = `/api/journeys?page=${controller.page + 1}&limit=${controller.rowsPerPage}&search=${controller.search}`
     const promise = axios.get(url)
     promise.then(eventHandler)
   }
   useEffect(hook, [controller])
-  const handlePageChange = (event:any, newPage:number) => {
+  const handlePageChange = (event: any, newPage: number) => {
     setController({
       ...controller,
       page: newPage
     });
   };
 
-  const handleChangeRowsPerPage = (event:any) => {
+  const handleChangeRowsPerPage = (event: any) => {
     setController({
       ...controller,
       rowsPerPage: parseInt(event.target.value, 10),
       page: 0
     });
   };
+  const searchJourney = (search: string) => {
+    setController({...controller, search: search})
+  }
   return (
     <Card>
+      <Search searchFunction={searchJourney}/>
       <Table>
         <TableHead>
           <TableRow>
@@ -93,7 +99,7 @@ export const JourneyList = (props: JourneyListProps) => {
             <TableCell>
               Duration (minutes)
             </TableCell>
-            <TableCell >
+            <TableCell>
               Distance Covered (kilometers)
             </TableCell>
           </TableRow>
