@@ -55,10 +55,7 @@ export const StationList = (props: StationListProps) => {
     });
   };
   const searchStation = (search: string) => {
-    if (search.length > 2 || search.length === 0) {
-      console.log('search..', search)
-      setController({...controller, search: search})
-    }
+    setController({...controller, search: search})
   }
   return (
     <Card>
@@ -68,6 +65,9 @@ export const StationList = (props: StationListProps) => {
           <TableRow>
             <TableCell>
               Name
+            </TableCell>
+            <TableCell>
+              Station ID
             </TableCell>
             <TableCell>
               Address
@@ -88,6 +88,9 @@ export const StationList = (props: StationListProps) => {
             <TableRow key={station.id}>
               <TableCell>
                 {station.name}
+              </TableCell>
+              <TableCell>
+                {station.station_id}
               </TableCell>
               <TableCell>
                 {station.address}

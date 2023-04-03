@@ -54,7 +54,7 @@ export const Search = ({searchFunction}: SearchProps) => {
   const [search, setSearch] = useState<string>();
   const hook = () => {
     // console.log('search country', country);
-    if(typeof search == 'string'){
+    if(typeof search == 'string' && search.length >1){
       searchFunction(search.toLowerCase())
     }
   }
@@ -65,7 +65,7 @@ export const Search = ({searchFunction}: SearchProps) => {
         <SearchIcon/>
       </SearchIconWrapper>
       <StyledInputBase
-        placeholder="Search... minimum 3 letters"
+        placeholder="Search... minimum 2 letters"
         inputProps={{'aria-label': 'search '}}
         onChange={event => setSearch(event.target.value)}
       />
