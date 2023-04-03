@@ -54,7 +54,7 @@ export const Search = ({searchFunction}: SearchProps) => {
   const [search, setSearch] = useState<string>();
   const hook = () => {
     // console.log('search country', country);
-    if(typeof search == 'string' && search.length >1){
+    if(typeof search == 'string' && search.length >1 || search==""){
       searchFunction(search.toLowerCase())
     }
   }

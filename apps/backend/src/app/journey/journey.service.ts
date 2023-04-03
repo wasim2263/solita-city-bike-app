@@ -22,10 +22,28 @@ export class JourneyService {
 
   async paginateJourney(
     options: IPaginationOptions,
+    search: string
   ): Promise<Pagination<Journey>> {
     const queryBuilder = this.journeyRepository.createQueryBuilder('journeys')
       .leftJoinAndSelect('journeys.departure_station', 'departure_station')
       .leftJoinAndSelect('journeys.return_station', 'return_station');
+    if (search != "") {
+      queryBuilder.where('departure_station.name ILIKE :searchTerm', {searchTerm: `%${search}%`})
+        .orWhere('return_station.name ILIKE :searchTerm', {searchTerm: `%${search}%`})
+      const dateSearch = new Date(search)
+      if(dateSearch.toString() !== 'Invalid Date'){
+        console.log('searching......', dateSearch)
+      queryBuilder.where('journeys.departed_at BETWEEN :startDate AND :endDate', {
+          startDate: new Date(`${search} 00:00:00`),
+          endDate: new Date(`${search} 23:59:59`),
+        })
+          .orWhere('journeys.returned_at BETWEEN :startDate AND :endDate', {
+            startDate: new Date(`${search} 00:00:00`),
+            endDate: new Date(`${search} 23:59:59`),
+          })
+      }
+    }
+
     return paginate<Journey>(queryBuilder, options);
 
   }
@@ -126,12 +144,12 @@ export class JourneyService {
     return 'This action adds a new journey';
   }
 
-  findAll(page, limit) {
+  findAll(page, limit, search) {
     // return 'wasim'
     return this.paginateJourney({
       page,
       limit,
-    });
+    }, search);
   }
 
   findOne(id: number) {
