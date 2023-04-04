@@ -104,9 +104,9 @@ export class JourneyService {
       } else if (key.trim() == 'Return station name') {
         returnStationData.name = <string>value;
       } else if (key.trim() == 'Covered distance (m)') {
-        journeyData.covered_distance = <number>value;
+        journeyData.covered_distance = Math.abs(<number>value);
       } else if (key.trim() == 'Duration (sec.)') {
-        journeyData.duration = <number>value;
+        journeyData.duration = Math.abs(<number>value);
       } else if (key.trim() == 'Departure') {
         journeyData.departed_at = <Date>value;
       } else if (key.trim() == 'Return') {
