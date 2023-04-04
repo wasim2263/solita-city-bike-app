@@ -27,7 +27,9 @@ export class JourneyService {
     const queryBuilder = this.journeyRepository.createQueryBuilder('journeys')
       .leftJoinAndSelect('journeys.departure_station', 'departure_station')
       .leftJoinAndSelect('journeys.return_station', 'return_station');
+    console.log('searching...s...', search)
     if (search != "") {
+      console.log('searching...st...', search)
       queryBuilder.where('departure_station.name ILIKE :searchTerm', {searchTerm: `%${search}%`})
         .orWhere('return_station.name ILIKE :searchTerm', {searchTerm: `%${search}%`})
       const dateSearch = new Date(search)

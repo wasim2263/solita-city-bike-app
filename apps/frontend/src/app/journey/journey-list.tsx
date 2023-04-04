@@ -39,26 +39,37 @@ interface Journey {
   return_station: Station;
 }
 
+type PaginationSearchParams = {
+  page: number;
+  rowsPerPage: number;
+  search: string;
+};
 export const JourneyList = (props: JourneyListProps) => {
   const [journeys, setJourneys] = useState<Journey[]>([])
   const [journeyCount, setJourneyCount] = useState(0)
-  const [controller, setController] = useState({
+  const [controller, setController] = useState<PaginationSearchParams>({
     page: 0,
     rowsPerPage: 10,
     search: ""
   });
   const hook = () => {
+    let isSubscribed = true
     const eventHandler = (response: any) => {
       console.log('promise fulfilled')
-      console.log(response.data)
+      const currentUrl = `/api/journeys?page=${controller.page + 1}&limit=${controller.rowsPerPage}&search=${controller.search}`;
       const data = response.data
-      setJourneys(data.items)
-      setJourneyCount(data.meta.totalItems)
-      console.log(journeys)
+      console.log(controller.search,isSubscribed)
+      if (isSubscribed == true) {
+        setJourneys(data.items)
+        setJourneyCount(data.meta.totalItems)
+      }
     }
     const url = `/api/journeys?page=${controller.page + 1}&limit=${controller.rowsPerPage}&search=${controller.search}`
     const promise = axios.get(url)
     promise.then(eventHandler)
+    return () => {
+      isSubscribed = false
+    }
   }
   useEffect(hook, [controller])
   const handlePageChange = (event: any, newPage: number) => {
