@@ -37,18 +37,29 @@ export class StationController {
     return this.stationService.create(createStationDto);
   }
 
+  @ApiImplicitQuery({
+    name: "search",
+    description: "search in the database",
+    required: false,
+    type: String
+  })
   @Get()
-  findAll(@Query('page') page = 1, @Query('limit') limit = 10) {
-    return this.stationService.findAll(page, limit);
+  findAll(
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('search') search = ""
+  ) {
+    return this.stationService.findAll(page, limit, search);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    const station = await  this.stationService.findOne(id);
-    const months = await  this.stationService.getMonths(id);
+    const station = await this.stationService.findOne(id);
+    const months = await this.stationService.getMonths(id);
     console.log(months)
-    return {station:station, months:months}
+    return {station: station, months: months}
   }
+
   @ApiImplicitQuery({
     name: "month",
     description: "The maximum number of transactions to return",
