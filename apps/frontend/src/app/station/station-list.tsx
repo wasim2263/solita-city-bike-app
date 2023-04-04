@@ -28,17 +28,24 @@ export const StationList = (props: StationListProps) => {
     search: ""
   });
   const hook = () => {
+    let isSubscribed = true
+
     const eventHandler = (response: any) => {
       console.log('promise fulfilled')
-      console.log(response.data)
       const data = response.data
-      setStations(data.items)
-      setStationCount(data.meta.totalItems)
-      console.log(stations)
+      console.log(controller.search,isSubscribed)
+      if (isSubscribed) {
+        setStations(data.items)
+        setStationCount(data.meta.totalItems)
+
+      }
     }
     const url = `/api/stations?page=${controller.page + 1}&limit=${controller.rowsPerPage}&search=${controller.search}`
     const promise = axios.get(url)
     promise.then(eventHandler)
+    return () => {
+      isSubscribed = false
+    }
   }
   useEffect(hook, [controller])
   const handlePageChange = (event: any, newPage: number) => {

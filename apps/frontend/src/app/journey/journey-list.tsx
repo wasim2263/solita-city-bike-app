@@ -56,10 +56,9 @@ export const JourneyList = (props: JourneyListProps) => {
     let isSubscribed = true
     const eventHandler = (response: any) => {
       console.log('promise fulfilled')
-      const currentUrl = `/api/journeys?page=${controller.page + 1}&limit=${controller.rowsPerPage}&search=${controller.search}`;
       const data = response.data
       console.log(controller.search,isSubscribed)
-      if (isSubscribed == true) {
+      if (isSubscribed) {
         setJourneys(data.items)
         setJourneyCount(data.meta.totalItems)
       }
