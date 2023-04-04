@@ -4,7 +4,7 @@ import {
   Post,
   Body,
   Param,
-  UploadedFile, UseInterceptors, Query,
+  UploadedFile, UseInterceptors, Query, ParseUUIDPipe,
 } from '@nestjs/common';
 import {JourneyService} from './journey.service';
 import {CreateJourneyDto} from './dto/create-journey.dto';
@@ -15,7 +15,6 @@ import {FileUploadService} from "../file-upload/file-upload.service";
 import {limit, orderByQuery, orderQuery, page, searchQuery} from "./decorators/api-params-decorators";
 import {Journey} from "./entities/journey.entity";
 import {Pagination} from "nestjs-typeorm-paginate";
-import {UUIDParamDto} from "../common/uuid-param.dto";
 
 @Controller('journeys')
 export class JourneyController {
@@ -61,7 +60,7 @@ export class JourneyController {
   }
 
   @Get(':id')
-  async findOne(@Param() params: UUIDParamDto): Promise<Journey> {
-    return await this.journeyService.findOne(params.id);
+  async findOne(@Param('id', ParseUUIDPipe) id:string): Promise<Journey> {
+    return await this.journeyService.findOne(id);
   }
 }
