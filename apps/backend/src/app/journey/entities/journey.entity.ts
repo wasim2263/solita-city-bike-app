@@ -1,9 +1,10 @@
 import {AfterLoad, Column, Entity, ManyToOne} from "typeorm";
 import {BaseEntity} from "../../common/base.entity";
 import {Station} from "../../station/entities/station.entity";
+import {JourneyInterface} from "../../../interfaces/journey-interface";
 
 @Entity()
-export class Journey extends BaseEntity {
+export class Journey extends BaseEntity implements JourneyInterface{
   @Column('float', {default: 0, comment: 'duration in meter'})
   covered_distance: number;
   @Column('integer', {default: 0, comment: 'duration in seconds'})

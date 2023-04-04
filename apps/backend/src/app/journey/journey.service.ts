@@ -6,7 +6,6 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Journey} from "./entities/journey.entity";
 import {IPaginationOptions, paginate, Pagination} from "nestjs-typeorm-paginate";
-import {Station} from "../station/entities/station.entity";
 
 @Injectable()
 export class JourneyService {
@@ -77,15 +76,15 @@ export class JourneyService {
   }
 
   private formatData(data) {
-    let departureStationData: { station_id: number; name: string } = {
+    const departureStationData: { station_id: number; name: string } = {
       name: "",
       station_id: 0
     }
-    let returnStationData: { station_id: number; name: string } = {
+    const returnStationData: { station_id: number; name: string } = {
       name: "",
       station_id: 0
     }
-    let journeyData = {
+    const journeyData = {
       covered_distance: 0,
       duration: 0,
       departed_at: new Date(),
@@ -116,13 +115,13 @@ export class JourneyService {
     return {returnStationData, departureStationData, journeyData}
   }
 
-  async getOrCreateStation(departureStationData: any) {
+  async getOrCreateStation(stationData: any) {
     // console.log(this.oldStations);
     let station;
-    if (this.stationIds.includes(departureStationData.station_id)) {
-      station = this.stations[departureStationData.station_id];
+    if (this.stationIds.includes(stationData.station_id)) {
+      station = this.stations[stationData.station_id];
     } else {
-      const insertedStation = await this.stationService.create(departureStationData);
+      const insertedStation = await this.stationService.create(stationData);
       station = insertedStation.generatedMaps[0];
       this.stations[station.station_id] = station;
       this.stationIds.push(station.station_id)
@@ -139,7 +138,7 @@ export class JourneyService {
     let remaining = data.length;
     let counter = 0;
     for (const row of data) {
-      let {returnStationData, departureStationData, journeyData} = this.formatData(row);
+      const {returnStationData, departureStationData, journeyData} = this.formatData(row);
       if (journeyData.covered_distance < 10 && journeyData.duration < 10) {
         remaining--;
       } else {
@@ -172,7 +171,7 @@ export class JourneyService {
     return 'This action adds a new journey';
   }
 
-  findAll(page, limit, search, orderBy, order) {
+  findAll(page, limit, search, orderBy, order):Promise<Pagination<Journey>> {
     // return 'wasim'
     return this.paginateJourney({
       page,
@@ -180,8 +179,9 @@ export class JourneyService {
     }, search, orderBy, order.toUpperCase());
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} journey`;
+  findOne(id: string):Promise<Journey | null> {
+    console.log(id)
+    return this.journeyRepository.findOne({where:{id:id}});
   }
 
   update(id: number, updateJourneyDto: UpdateJourneyDto) {

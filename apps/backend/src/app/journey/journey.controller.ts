@@ -10,12 +10,14 @@ import {
 import {JourneyService} from './journey.service';
 import {CreateJourneyDto} from './dto/create-journey.dto';
 import {UpdateJourneyDto} from './dto/update-journey.dto';
-import {diskStorage} from 'multer';
 import {FileInterceptor} from "@nestjs/platform-express";
 import {ApiConsumes} from "@nestjs/swagger";
 import {FileUploadJourniesDto} from "./dto/file-upload-journies.dto";
 import {FileUploadService} from "../file-upload/file-upload.service";
-import {ApiImplicitQuery} from "@nestjs/swagger/dist/decorators/api-implicit-query.decorator";
+import {limit, orderByQuery, orderQuery, page, searchQuery} from "./decorators/api-params-decorators";
+import {Journey} from "./entities/journey.entity";
+import {Pagination} from "nestjs-typeorm-paginate";
+import {UUIDParamDto} from "../common/uuid-param.dto";
 
 @Controller('journeys')
 export class JourneyController {
@@ -25,10 +27,16 @@ export class JourneyController {
   ) {
   }
 
+
   @Post('upload')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@Body() fileUploadJourniesDto: FileUploadJourniesDto, @UploadedFile() file: Express.Multer.File) {
+  async uploadFile(
+    @Body() fileUploadJourniesDto: FileUploadJourniesDto,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    @UploadedFile() file: Express.Multer.File
+  ): Promise<void> {
     const csvData = await this.fileUploadService.uploadFile(file.buffer);
     this.journeyService.bulkCreate(csvData);
   }
@@ -38,24 +46,11 @@ export class JourneyController {
     return this.journeyService.create(createJourneyDto);
   }
 
-  @ApiImplicitQuery({
-    name: "search",
-    description: "search in the database",
-    required: false,
-    type: String
-  })
-  @ApiImplicitQuery({
-    name: "orderBy",
-    description: "orderBy field",
-    required: false,
-    type: String
-  })
-  @ApiImplicitQuery({
-    name: "order",
-    description: "order: asc|desc",
-    required: false,
-    type: String
-  })
+  @searchQuery
+  @orderByQuery
+  @orderQuery
+  @page
+  @limit
   @Get()
   findAll(
     @Query('page') page = 1,
@@ -63,13 +58,13 @@ export class JourneyController {
     @Query('search') search = "",
     @Query('orderBy') orderBy = "",
     @Query('order') order = ""
-  ) {
-    return this.journeyService.findAll(page, limit, search,orderBy, order);
+  ):Promise<Pagination<Journey>> {
+    return this.journeyService.findAll(page, limit, search, orderBy, order);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.journeyService.findOne(+id);
+  async findOne(@Param() params: UUIDParamDto): Promise<Journey> {
+    return await this.journeyService.findOne(params.id);
   }
 
   @Patch(':id')
