@@ -33,16 +33,37 @@ export class JourneyService {
       queryBuilder.where('departure_station.name ILIKE :searchTerm', {searchTerm: `%${search}%`})
         .orWhere('return_station.name ILIKE :searchTerm', {searchTerm: `%${search}%`})
       const dateSearch = new Date(search)
-      if(dateSearch.toString() !== 'Invalid Date'){
+      console.log(dateSearch)
+      if (dateSearch.toString() !== 'Invalid Date') {
         console.log('searching......', dateSearch)
-      queryBuilder.where('journeys.departed_at BETWEEN :startDate AND :endDate', {
-          startDate: new Date(`${search} 00:00:00`),
-          endDate: new Date(`${search} 23:59:59`),
-        })
-          .orWhere('journeys.returned_at BETWEEN :startDate AND :endDate', {
+        if (Number.isInteger(Number(search)) && search.length == 4) {
+          queryBuilder.orWhere(`(date_part('year', journeys.departed_at) = :year)
+  OR ( date_part('year', journeys.returned_at) = :year)`, {year: search,})
+        } else if (search.replace(dateSearch.getFullYear(), "").match(dateSearch.getDate()) == null) {
+          console.log('year month', dateSearch)
+          queryBuilder.orWhere(`(
+    date_part('year', journeys.departed_at) = :year
+    AND date_part('month', journeys.departed_at) = :month
+  )
+  OR (
+    date_part('year', journeys.returned_at) = :year
+    AND date_part('month', journeys.returned_at) = :month
+  )`, {
+            year: dateSearch.getFullYear(),
+            month: dateSearch.getMonth() + 1,
+          })
+
+        } else {
+          queryBuilder.orWhere('journeys.departed_at BETWEEN :startDate AND :endDate', {
             startDate: new Date(`${search} 00:00:00`),
             endDate: new Date(`${search} 23:59:59`),
           })
+            .orWhere('journeys.returned_at BETWEEN :startDate AND :endDate', {
+              startDate: new Date(`${search} 00:00:00`),
+              endDate: new Date(`${search} 23:59:59`),
+            })
+        }
+
       }
     }
 
