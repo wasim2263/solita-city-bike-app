@@ -44,13 +44,27 @@ export class JourneyController {
     required: false,
     type: String
   })
+  @ApiImplicitQuery({
+    name: "orderBy",
+    description: "orderBy field",
+    required: false,
+    type: String
+  })
+  @ApiImplicitQuery({
+    name: "order",
+    description: "order: asc|desc",
+    required: false,
+    type: String
+  })
   @Get()
   findAll(
     @Query('page') page = 1,
     @Query('limit') limit = 10,
-    @Query('search') search = ""
+    @Query('search') search = "",
+    @Query('orderBy') orderBy = "",
+    @Query('order') order = ""
   ) {
-    return this.journeyService.findAll(page, limit, search);
+    return this.journeyService.findAll(page, limit, search,orderBy, order);
   }
 
   @Get(':id')

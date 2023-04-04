@@ -22,7 +22,9 @@ export class JourneyService {
 
   async paginateJourney(
     options: IPaginationOptions,
-    search: string
+    search: string,
+    orderBy: string,
+    order: 'ASC'|'DESC',
   ): Promise<Pagination<Journey>> {
     const queryBuilder = this.journeyRepository.createQueryBuilder('journeys')
       .leftJoinAndSelect('journeys.departure_station', 'departure_station')
@@ -40,7 +42,7 @@ export class JourneyService {
           queryBuilder.orWhere(`(date_part('year', journeys.departed_at) = :year)
   OR ( date_part('year', journeys.returned_at) = :year)`, {year: search,})
         } else if (search.replace(dateSearch.getFullYear(), "").match(dateSearch.getDate()) == null) {
-          console.log('year month', dateSearch)
+          console.log('year month',  dateSearch.getFullYear(), dateSearch.getMonth() + 1)
           queryBuilder.orWhere(`(
     date_part('year', journeys.departed_at) = :year
     AND date_part('month', journeys.departed_at) = :month
@@ -65,6 +67,9 @@ export class JourneyService {
         }
 
       }
+    }
+    if(orderBy.length>0 && order.length>0){
+      queryBuilder.orderBy(orderBy, order)
     }
 
     return paginate<Journey>(queryBuilder, options);
@@ -99,9 +104,9 @@ export class JourneyService {
       } else if (key.trim() == 'Return station name') {
         returnStationData.name = <string>value;
       } else if (key.trim() == 'Covered distance (m)') {
-        journeyData.covered_distance = <number>value;
+        journeyData.covered_distance = Math.abs(<number>value);
       } else if (key.trim() == 'Duration (sec.)') {
-        journeyData.duration = <number>value;
+        journeyData.duration = Math.abs(<number>value);
       } else if (key.trim() == 'Departure') {
         journeyData.departed_at = <Date>value;
       } else if (key.trim() == 'Return') {
@@ -167,12 +172,12 @@ export class JourneyService {
     return 'This action adds a new journey';
   }
 
-  findAll(page, limit, search) {
+  findAll(page, limit, search, orderBy, order) {
     // return 'wasim'
     return this.paginateJourney({
       page,
       limit,
-    }, search);
+    }, search, orderBy, order.toUpperCase());
   }
 
   findOne(id: number) {
