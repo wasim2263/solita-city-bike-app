@@ -1,4 +1,12 @@
-import {ApiProperty, ApiPropertyOptional} from "@nestjs/swagger";
+import {StationInterface} from "../../../interfaces/station-interface";
 
 
-export class CreateStationDto {}
+export class CreateStationDto implements StationInterface{
+  address?: string;
+  capacities?: number;
+  id?: string;
+  latitude?: number;
+  longitude?: number;
+  name: string;
+  station_id: number;
+}

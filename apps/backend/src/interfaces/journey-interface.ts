@@ -1,6 +1,6 @@
 
 export interface JourneyInterface {
-  id: string;
+  id?: string;
   covered_distance: number;
   duration: number;
   departed_at: Date;

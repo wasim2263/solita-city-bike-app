@@ -40,7 +40,7 @@ export class JourneyController {
   }
 
   @Post()
-  create(@Body() createJourneyDto: CreateJourneyDto) {
+  create(@Body() createJourneyDto: CreateJourneyDto):Promise<Journey> {
     return this.journeyService.create(createJourneyDto);
   }
 

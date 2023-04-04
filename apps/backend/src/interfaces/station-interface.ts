@@ -1,14 +1,14 @@
 
 export interface StationInterface {
-  id: string;
+  id?: string;
   station_id: number;
   name: string;
   address?: string;
-  capacities: number;
+  capacities?: number;
   latitude?: number;
   longitude?: number;
-  departure_journeys: Record<any, any>;
-  return_journeys: Record<any, any>;
+  departure_journeys?: Record<any, any>;
+  return_journeys?: Record<any, any>;
 }
 
 

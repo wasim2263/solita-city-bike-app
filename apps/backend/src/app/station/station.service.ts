@@ -108,6 +108,12 @@ export class StationService {
       .where('stations.id = :id', {id: id})
       .getOne();
   }
+  findOneByStationId(id: number) {
+    console.log(id);
+    return this.stationRepository.createQueryBuilder('stations')
+      .where('stations.station_id = :id', {id: id})
+      .getOne();
+  }
 
   async getMonths(id: string) {
     const dateRange = await this.journeyRepository.createQueryBuilder('journeys')
