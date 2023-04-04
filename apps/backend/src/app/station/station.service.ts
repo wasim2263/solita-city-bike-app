@@ -22,18 +22,10 @@ export class StationService {
 
   async paginateStation(
     options: IPaginationOptions,
-    search: string
   ): Promise<Pagination<Station>> {
     const queryBuilder = this.stationRepository.createQueryBuilder('stations')
       .loadRelationCountAndMap('stations.departure_journeys_count', 'stations.departure_journeys')
       .loadRelationCountAndMap('stations.return_journeys_count', 'stations.return_journeys');
-    if(search != ""){
-      queryBuilder.where('stations.name LIKE :searchTerm', { searchTerm: `%${search}%` })
-        .orWhere('stations.address LIKE :searchTerm', { searchTerm: `%${search}%` })
-        .orWhere('CAST(stations.station_id AS varchar) LIKE :searchTerm', { searchTerm: `%${search}%` })
-        .orWhere('CAST(stations.capacities AS varchar) LIKE :searchTerm', { searchTerm: `%${search}%` })
-
-    }
     return paginate<Station>(queryBuilder, options);
   }
 
@@ -95,11 +87,11 @@ export class StationService {
     return station;
   }
 
-  async findAll(page, limit, search) {
+  async findAll(page, limit) {
     return this.paginateStation({
       page,
       limit,
-    }, search);
+    });
   }
 
   findOne(id: string) {
@@ -156,7 +148,7 @@ export class StationService {
       console.log('---------', startDate, endDate, m, startDate.getMonth(), endDate.getMonth())
     }
 
-    let departureJourneyQuery = this.journeyRepository.createQueryBuilder('journeys')
+    let departureJourneyQuery =  this.journeyRepository.createQueryBuilder('journeys')
       .where('journeys.departureStationId = :id', {id: id})
     let returnJourneyQuery = this.journeyRepository.createQueryBuilder('journeys')
       .where('journeys.returnStationId = :id', {id: id})

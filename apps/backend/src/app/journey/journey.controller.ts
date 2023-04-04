@@ -15,7 +15,6 @@ import {FileInterceptor} from "@nestjs/platform-express";
 import {ApiConsumes} from "@nestjs/swagger";
 import {FileUploadJourniesDto} from "./dto/file-upload-journies.dto";
 import {FileUploadService} from "../file-upload/file-upload.service";
-import {ApiImplicitQuery} from "@nestjs/swagger/dist/decorators/api-implicit-query.decorator";
 
 @Controller('journeys')
 export class JourneyController {
@@ -38,19 +37,9 @@ export class JourneyController {
     return this.journeyService.create(createJourneyDto);
   }
 
-  @ApiImplicitQuery({
-    name: "search",
-    description: "search in the database",
-    required: false,
-    type: String
-  })
   @Get()
-  findAll(
-    @Query('page') page = 1,
-    @Query('limit') limit = 10,
-    @Query('search') search = ""
-  ) {
-    return this.journeyService.findAll(page, limit, search);
+  findAll(@Query('page') page = 1, @Query('limit') limit = 10) {
+    return this.journeyService.findAll(page, limit);
   }
 
   @Get(':id')
