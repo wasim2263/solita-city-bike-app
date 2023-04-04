@@ -1,6 +1,5 @@
 import {Injectable} from '@nestjs/common';
 import {CreateJourneyDto} from './dto/create-journey.dto';
-import {UpdateJourneyDto} from './dto/update-journey.dto';
 import {StationService} from "../station/station.service";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
@@ -182,13 +181,5 @@ export class JourneyService {
   findOne(id: string):Promise<Journey | null> {
     console.log(id)
     return this.journeyRepository.findOne({where:{id:id}});
-  }
-
-  update(id: number, updateJourneyDto: UpdateJourneyDto) {
-    return `This action updates a #${id} journey`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} journey`;
   }
 }

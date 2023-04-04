@@ -3,13 +3,11 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
-  Delete, UploadedFile, UseInterceptors, Query,
+  UploadedFile, UseInterceptors, Query,
 } from '@nestjs/common';
 import {JourneyService} from './journey.service';
 import {CreateJourneyDto} from './dto/create-journey.dto';
-import {UpdateJourneyDto} from './dto/update-journey.dto';
 import {FileInterceptor} from "@nestjs/platform-express";
 import {ApiConsumes} from "@nestjs/swagger";
 import {FileUploadJourniesDto} from "./dto/file-upload-journies.dto";
@@ -65,15 +63,5 @@ export class JourneyController {
   @Get(':id')
   async findOne(@Param() params: UUIDParamDto): Promise<Journey> {
     return await this.journeyService.findOne(params.id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateJourneyDto: UpdateJourneyDto) {
-    return this.journeyService.update(+id, updateJourneyDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.journeyService.remove(+id);
   }
 }
