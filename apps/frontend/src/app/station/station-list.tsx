@@ -110,7 +110,7 @@ export const StationList = (props: StationListProps) => {
               </TableCell>
 
               <TableCell align='center'>
-                <a target="_blank" href={`stations/${station.id}`}>View</a>
+                <a target="_blank" href={`stations/${station.id}`} rel="noreferrer">View</a>
               </TableCell>
             </TableRow>
           ))}
