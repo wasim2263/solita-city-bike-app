@@ -39,7 +39,7 @@ export class JourneyController {
   }
 
   @Post()
-  create(@Body() createJourneyDto: CreateJourneyDto):Promise<Journey> {
+  create(@Body() createJourneyDto: CreateJourneyDto): Promise<Journey> {
     return this.journeyService.create(createJourneyDto);
   }
 
@@ -50,17 +50,17 @@ export class JourneyController {
   @limit
   @Get()
   findAll(
-    @Query('page') page = 1,
-    @Query('limit') limit = 10,
-    @Query('search') search = "",
-    @Query('orderBy') orderBy = "",
-    @Query('order') order = ""
-  ):Promise<Pagination<Journey>> {
-    return this.journeyService.findAll(page, limit, search, orderBy, order);
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('search') search: string = "",
+    @Query('orderBy') orderBy: string = "",
+    @Query('order') order: string = ""
+  ): Promise<Pagination<Journey>> {
+    return this.journeyService.findAll(page, limit, search, orderBy, order.toUpperCase());
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id:string): Promise<Journey> {
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Journey> {
     return await this.journeyService.findOne(id);
   }
 }

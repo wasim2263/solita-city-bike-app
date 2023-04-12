@@ -11,11 +11,9 @@ import {ApiConsumes} from "@nestjs/swagger";
 import {FileInterceptor} from "@nestjs/platform-express";
 import {FileUploadStationsDto} from "./dto/file-upload-stations.dto";
 import {FileUploadService} from "../file-upload/file-upload.service";
-import {ApiImplicitQuery} from "@nestjs/swagger/dist/decorators/api-implicit-query.decorator";
 import {filterByMonth, limit, page, searchQuery} from "./decorators/api-params-decorators";
 import {Pagination} from "nestjs-typeorm-paginate";
 import {Station} from "./entities/station.entity";
-import {IsUUID} from "class-validator";
 
 @Controller('stations')
 export class StationController {
@@ -40,8 +38,9 @@ export class StationController {
   }
 
   @Post()
-  create(@Body() createStationDto: CreateStationDto) {
-    return this.stationService.create(createStationDto);
+  async create(@Body() createStationDto: CreateStationDto) {
+    const insertedStation = await this.stationService.create(createStationDto);
+    return insertedStation.generatedMaps[0];
   }
 
   @searchQuery

@@ -26,7 +26,7 @@ export class JourneyService {
     options: IPaginationOptions,
     search: string,
     orderBy: string,
-    order: 'ASC' | 'DESC',
+    order: string,
   ): Promise<Pagination<Journey>> {
     const queryBuilder = this.journeyRepository.createQueryBuilder('journeys')
       .leftJoinAndSelect('journeys.departure_station', 'departure_station')
@@ -36,7 +36,6 @@ export class JourneyService {
         .orWhere('return_station.name ILIKE :searchTerm', {searchTerm: `%${search}%`})
       const dateSearch = new Date(search)
       if (dateSearch.toString() !== 'Invalid Date') {
-        console.log('searching......', dateSearch)
         if (Number.isInteger(Number(search)) && search.length == 4) {
           queryBuilder.orWhere(`(date_part('year', journeys.departed_at) = :year)
   OR ( date_part('year', journeys.returned_at) = :year)`, {year: search,})
@@ -68,7 +67,9 @@ export class JourneyService {
       }
     }
     if (orderBy.length > 0 && order.length > 0) {
-      queryBuilder.orderBy(orderBy, order)
+      if (order === 'ASC' || order === 'DESC') {
+        queryBuilder.orderBy(orderBy, order)
+      }
     }
 
     return paginate<Journey>(queryBuilder, options);
@@ -144,7 +145,6 @@ export class JourneyService {
       if (journeyData.covered_distance < 10 && journeyData.duration < 10) {
         remaining--;
       } else {
-        // console.log(returnStationData, departureStationData, journeyData)
         const departureStation = await this.getOrCreateStation(departureStationData);
         const returnStation = await this.getOrCreateStation(returnStationData);
         journeyData.departure_station = departureStation;
@@ -154,9 +154,9 @@ export class JourneyService {
       }
 
       if (counter == 10000 || counter == remaining) {
-        console.log(counter, remaining)
         this.journeyRepository.insert(journeys)
         remaining -= counter;
+        // checking the counter
         console.log(counter, remaining)
         counter = 0;
         journeys = []
@@ -165,15 +165,12 @@ export class JourneyService {
 
   }
 
-  bulkStore(journeys: any[]) {
-    this.journeyRepository.insert(journeys);
-  }
 
-  async create(createJourneyDto: CreateJourneyDto):Promise<Journey> {
+  async create(createJourneyDto: CreateJourneyDto): Promise<Journey> {
     const {departure_station_id, return_station_id} = createJourneyDto;
 
-    const departureStation = await this.stationService.findOneByStationId(departure_station_id);
-    const returnStation = await this.stationService.findOneByStationId(return_station_id);
+    const departureStation: Station = await this.stationService.findOneByStationId(departure_station_id);
+    const returnStation: Station = await this.stationService.findOneByStationId(return_station_id);
 
     if (!departureStation || !returnStation) {
       throw new NotFoundException('Departure station or return station not found');
@@ -186,12 +183,11 @@ export class JourneyService {
     return this.journeyRepository.save(journey);
   }
 
-  findAll(page, limit, search, orderBy, order): Promise<Pagination<Journey>> {
-    // return 'wasim'
+  findAll(page: number, limit: number, search: string, orderBy: string, order: string): Promise<Pagination<Journey>> {
     return this.paginateJourney({
       page,
       limit,
-    }, search, orderBy, order.toUpperCase());
+    }, search, orderBy, order);
   }
 
   findOne(id: string): Promise<Journey | null> {
