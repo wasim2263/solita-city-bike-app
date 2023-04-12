@@ -1,17 +1,19 @@
-import {Injectable} from '@nestjs/common';
+import {Injectable, NotFoundException} from '@nestjs/common';
 import {CreateJourneyDto} from './dto/create-journey.dto';
-import {UpdateJourneyDto} from './dto/update-journey.dto';
 import {StationService} from "../station/station.service";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Journey} from "./entities/journey.entity";
 import {IPaginationOptions, paginate, Pagination} from "nestjs-typeorm-paginate";
+import {CreateStationDto} from "../station/dto/create-station.dto";
 import {Station} from "../station/entities/station.entity";
+import {StationInterface} from "../../interfaces/station-interface";
+import {JourneyInterface} from "../../interfaces/journey-interface";
 
 @Injectable()
 export class JourneyService {
-  private stations: [] = [];
-  private stationIds: [] = [];
+  private stations: number[] = [];
+  private stationIds: number[] = [];
 
   constructor(
     @InjectRepository(Journey)
@@ -24,25 +26,21 @@ export class JourneyService {
     options: IPaginationOptions,
     search: string,
     orderBy: string,
-    order: 'ASC'|'DESC',
+    order: string,
   ): Promise<Pagination<Journey>> {
     const queryBuilder = this.journeyRepository.createQueryBuilder('journeys')
       .leftJoinAndSelect('journeys.departure_station', 'departure_station')
       .leftJoinAndSelect('journeys.return_station', 'return_station');
-    console.log('searching...s...', search)
     if (search != "") {
-      console.log('searching...st...', search)
       queryBuilder.where('departure_station.name ILIKE :searchTerm', {searchTerm: `%${search}%`})
         .orWhere('return_station.name ILIKE :searchTerm', {searchTerm: `%${search}%`})
       const dateSearch = new Date(search)
-      console.log(dateSearch)
       if (dateSearch.toString() !== 'Invalid Date') {
-        console.log('searching......', dateSearch)
         if (Number.isInteger(Number(search)) && search.length == 4) {
           queryBuilder.orWhere(`(date_part('year', journeys.departed_at) = :year)
   OR ( date_part('year', journeys.returned_at) = :year)`, {year: search,})
-        } else if (search.replace(dateSearch.getFullYear(), "").match(dateSearch.getDate()) == null) {
-          console.log('year month',  dateSearch.getFullYear(), dateSearch.getMonth() + 1)
+        } else if (search.replace(dateSearch.getFullYear().toString(), "").match(dateSearch.getDate().toString()) == null) {
+          console.log('year month', dateSearch.getFullYear(), dateSearch.getMonth() + 1)
           queryBuilder.orWhere(`(
     date_part('year', journeys.departed_at) = :year
     AND date_part('month', journeys.departed_at) = :month
@@ -68,30 +66,36 @@ export class JourneyService {
 
       }
     }
-    if(orderBy.length>0 && order.length>0){
-      queryBuilder.orderBy(orderBy, order)
+    if (orderBy.length > 0 && order.length > 0) {
+      if (order === 'ASC' || order === 'DESC') {
+        queryBuilder.orderBy(orderBy, order)
+      }
     }
 
     return paginate<Journey>(queryBuilder, options);
 
   }
 
-  private formatData(data) {
-    let departureStationData: { station_id: number; name: string } = {
+  private formatData(data): {
+    returnStationData: StationInterface;
+    departureStationData: StationInterface;
+    journeyData: JourneyInterface
+  } {
+    const departureStationData: CreateStationDto = {
       name: "",
       station_id: 0
     }
-    let returnStationData: { station_id: number; name: string } = {
+    const returnStationData: CreateStationDto = {
       name: "",
       station_id: 0
     }
-    let journeyData = {
+    const journeyData: CreateJourneyDto = {
       covered_distance: 0,
       duration: 0,
       departed_at: new Date(),
       returned_at: new Date(),
-      departure_station: null,
-      return_station: null
+      departure_station_id: null,
+      return_station_id: null
     }
     for (const [key, value] of Object.entries(data)) {
       // console.log(`${key}: ${value}`);
@@ -116,34 +120,31 @@ export class JourneyService {
     return {returnStationData, departureStationData, journeyData}
   }
 
-  async getOrCreateStation(departureStationData: any) {
-    // console.log(this.oldStations);
+  async getOrCreateStation(stationData: CreateStationDto): Promise<Station> {
     let station;
-    if (this.stationIds.includes(departureStationData.station_id)) {
-      station = this.stations[departureStationData.station_id];
+    if (this.stationIds.includes(stationData.station_id)) {
+      station = this.stations[stationData.station_id];
     } else {
-      const insertedStation = await this.stationService.create(departureStationData);
+      const insertedStation = await this.stationService.create(stationData);
       station = insertedStation.generatedMaps[0];
-      this.stations[station.station_id] = station;
-      this.stationIds.push(station.station_id)
+      if (station) {
+        this.stations[station.station_id] = station;
+        this.stationIds.push(station.station_id)
+      }
     }
     return station;
   }
 
-  async bulkCreate(data: any[]) {
-    // this.oldStations = await this.stationService.findAll()
-    const validRows = [];
-    const invalidRows = [];
+  async bulkCreate(data: any[]): Promise<void> {
     let journeys = []
     console.log('total data', data.length)
     let remaining = data.length;
     let counter = 0;
     for (const row of data) {
-      let {returnStationData, departureStationData, journeyData} = this.formatData(row);
+      const {returnStationData, departureStationData, journeyData} = this.formatData(row);
       if (journeyData.covered_distance < 10 && journeyData.duration < 10) {
         remaining--;
       } else {
-        // console.log(returnStationData, departureStationData, journeyData)
         const departureStation = await this.getOrCreateStation(departureStationData);
         const returnStation = await this.getOrCreateStation(returnStationData);
         journeyData.departure_station = departureStation;
@@ -153,9 +154,9 @@ export class JourneyService {
       }
 
       if (counter == 10000 || counter == remaining) {
-        console.log(counter, remaining)
         this.journeyRepository.insert(journeys)
         remaining -= counter;
+        // checking the counter
         console.log(counter, remaining)
         counter = 0;
         journeys = []
@@ -164,31 +165,32 @@ export class JourneyService {
 
   }
 
-  bulkStore(journeys: any[]) {
-    this.journeyRepository.insert(journeys);
+
+  async create(createJourneyDto: CreateJourneyDto): Promise<Journey> {
+    const {departure_station_id, return_station_id} = createJourneyDto;
+
+    const departureStation: Station = await this.stationService.findOneByStationId(departure_station_id);
+    const returnStation: Station = await this.stationService.findOneByStationId(return_station_id);
+
+    if (!departureStation || !returnStation) {
+      throw new NotFoundException('Departure station or return station not found');
+    }
+
+    const journey = this.journeyRepository.create(createJourneyDto);
+    journey.departure_station = departureStation;
+    journey.return_station = returnStation;
+
+    return this.journeyRepository.save(journey);
   }
 
-  create(createJourneyDto: CreateJourneyDto) {
-    return 'This action adds a new journey';
-  }
-
-  findAll(page, limit, search, orderBy, order) {
-    // return 'wasim'
+  findAll(page: number, limit: number, search: string, orderBy: string, order: string): Promise<Pagination<Journey>> {
     return this.paginateJourney({
       page,
       limit,
-    }, search, orderBy, order.toUpperCase());
+    }, search, orderBy, order);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} journey`;
-  }
-
-  update(id: number, updateJourneyDto: UpdateJourneyDto) {
-    return `This action updates a #${id} journey`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} journey`;
+  findOne(id: string): Promise<Journey | null> {
+    return this.journeyRepository.findOne({where: {id: id}});
   }
 }

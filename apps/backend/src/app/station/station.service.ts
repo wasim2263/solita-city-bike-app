@@ -5,7 +5,6 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Station} from "./entities/station.entity";
 import {Repository} from "typeorm";
 import {IPaginationOptions, paginate, Pagination} from "nestjs-typeorm-paginate";
-import {groupBy} from "rxjs";
 
 import {Journey} from "../journey/entities/journey.entity";
 
@@ -38,7 +37,7 @@ export class StationService {
   }
 
   private formatData(data) {
-    let stationData = {
+    const stationData = {
       station_id: 0,
       name: "",
       address: "",
@@ -64,29 +63,14 @@ export class StationService {
     return stationData;
   }
 
-  async bulkCreate(data: any[]) {
-    //   {
-    //     '﻿FID': '83',
-    //     ID: '713',
-    //     Nimi: 'Upseerinkatu',
-    //     Namn: 'Officersgatan',
-    //     Name: 'Upseerinkatu',
-    //     Osoite: 'Upseerinkatu 3',
-    //     Adress: 'Officersgatan 3',
-    //     Kaupunki: 'Espoo',
-    //     Stad: 'Esbo',
-    //     Operaattor: 'CityBike Finland',
-    //     Kapasiteet: '30',
-    //     x: '24.819396',
-    //     y: '60.216067'
-    //   },
+  async bulkCreate(data: CreateStationDto[]):Promise<void> {
     console.log('total data', data.length)
     let counter = 0;
     for (const row of data) {
-      let stationData = this.formatData(row);
+      const stationData = this.formatData(row);
       counter++
       this.create(stationData);
-      console.log(counter);
+      console.log('created station counter',counter);
     }
   }
 
@@ -106,6 +90,12 @@ export class StationService {
     console.log(id);
     return this.stationRepository.createQueryBuilder('stations')
       .where('stations.id = :id', {id: id})
+      .getOne();
+  }
+  findOneByStationId(id: number) {
+    console.log(id);
+    return this.stationRepository.createQueryBuilder('stations')
+      .where('stations.station_id = :id', {id: id})
       .getOne();
   }
 
@@ -144,7 +134,6 @@ export class StationService {
   }
 
   async getStatistics(id: string, month: string) {
-    console.log(id);
     let startDate: null | Date
     let endDate: null | Date
     let dateMonth: null | Date
@@ -153,7 +142,6 @@ export class StationService {
       dateMonth = new Date(`${m} 1, ${y}`);
       startDate = new Date(dateMonth.getFullYear(), dateMonth.getMonth(), 1);
       endDate = new Date(dateMonth.getFullYear(), dateMonth.getMonth() + 1, 0, 23, 59);
-      console.log('---------', startDate, endDate, m, startDate.getMonth(), endDate.getMonth())
     }
 
     let departureJourneyQuery = this.journeyRepository.createQueryBuilder('journeys')
@@ -227,13 +215,4 @@ export class StationService {
       top_stations: topStationsData
     }
   }
-
-  update(id: number, updateStationDto: UpdateStationDto) {
-    return `This action updates a #${id} station`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} station`;
-  }
-
 }
