@@ -7,6 +7,7 @@ import {JourneyList} from "./journey/journey-list";
 import {StationList} from "./station/station-list";
 import {Header} from "./header/header";
 import {StationDetails} from "./station/station-details";
+import NewStationForm from "./station/new-station-form";
 
 export function App() {
   const navigate = useNavigate();
@@ -27,6 +28,8 @@ export function App() {
           element={<StationList/>}
         />
         <Route path="/stations/:id" element={<StationDetails/>}/>
+        <Route path="/stations/new" element={<NewStationForm />} />
+
       </Routes>
     </div>
   );
