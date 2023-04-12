@@ -1,7 +1,6 @@
-import styles from './header.module.css';
 import DirectionsBikeIcon from '@mui/icons-material/DirectionsBike';
-import {AppBar, Box, Button, Container, IconButton, Menu, MenuItem, Toolbar, Typography} from "@mui/material";
-import React from "react";
+import {AppBar, Box, Button, Toolbar} from "@mui/material";
+import React, {FC} from "react";
 
 
 /* eslint-disable-next-line */
@@ -13,9 +12,9 @@ export interface HeaderProps {
 const pages = ['Journeys', 'Stations'];
 
 
-export const Header = (props: HeaderProps) => {
+export const Header: FC<HeaderProps> = ({handleNavigation}) => {
   const handleMenuClick = (e: any) => {
-    props.handleNavigation(e.target.value);
+    handleNavigation(e.target.value);
   }
 
   return (

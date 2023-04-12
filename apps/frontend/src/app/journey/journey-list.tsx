@@ -1,4 +1,3 @@
-import styles from './journey-list.module.css';
 import {
   Card,
   Table,
@@ -9,16 +8,12 @@ import {
   TablePagination
 } from '@mui/material';
 import TableSortLabel from '@mui/material/TableSortLabel';
-
-import {useEffect, useState} from "react";
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import {FC, useEffect, useState} from "react";
 import axios from "axios";
-import * as process from "process";
 import {Search} from "../search/search";
 
 /* eslint-disable-next-line */
-export interface JourneyListProps {
-}
-
 interface Station {
   id: string;
   created_at: string;
@@ -48,7 +43,7 @@ type PaginationSearchParams = {
   orderBy: string;
   order: string;
 };
-export const JourneyList = (props: JourneyListProps) => {
+export const JourneyList: FC = (props) => {
   const [journeys, setJourneys] = useState<Journey[]>([])
   const [journeyCount, setJourneyCount] = useState(0)
   const [controller, setController] = useState<PaginationSearchParams>({
@@ -108,6 +103,9 @@ export const JourneyList = (props: JourneyListProps) => {
   };
   return (
     <Card>
+      <div>
+        Create new <AddBoxIcon/>
+      </div>
       <Search searchFunction={searchJourney}/>
       <Table>
         <TableHead>
