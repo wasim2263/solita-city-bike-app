@@ -1,5 +1,5 @@
 import {useParams} from "react-router-dom";
-import React, {useEffect, useState} from "react";
+import React, {FC, useEffect, useState} from "react";
 import axios from "axios";
 import { Card, CardContent, Typography} from "@mui/material";
 import {Map} from "./google-map";
@@ -27,7 +27,7 @@ type StationWithCount = {
   journey_count: string;
 };
 
-export const StationDetails = () => {
+export const StationDetails:FC = () => {
   const {id} = useParams();
   const [station, setStation] = useState<Station>({
     name: "",

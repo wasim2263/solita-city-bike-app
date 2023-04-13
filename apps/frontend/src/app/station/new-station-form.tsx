@@ -2,8 +2,12 @@ import React, {useState} from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import axios from "axios";
+import axios, {AxiosError} from "axios";
 import {useNavigate} from "react-router-dom";
+
+interface StationFormProps {
+  notify: (type: string, message: string) => void;
+}
 
 export interface StationInterface {
   address: string;
@@ -14,7 +18,7 @@ export interface StationInterface {
   station_id: string;
 }
 
-const NewStationForm: React.FC = () => {
+const NewStationForm: React.FC<StationFormProps> = ({notify}) => {
   const [stationName, setStationName] = useState('');
   const [stationAddress, setStationAddress] = useState('');
   const [stationCapacities, setStationCapacities] = useState(0);
@@ -29,13 +33,17 @@ const NewStationForm: React.FC = () => {
     try {
       const response = await axios.post('/api/stations', data);
       console.log('Post request successful:', response.data);
-      if(response.status==201){
+      if (response.status == 201) {
+        notify('success', 'Station added successfully');
         navigate('/stations')
       }
+    } catch (error: Error | AxiosError | any) {
+      let errorMessage = 'Fail to add station';
+      if (error?.response) {
+        errorMessage = error.response.data.message;
+      }
+      notify('error', errorMessage);
 
-    } catch (error) {
-      console.error('Error making post request:', error);
-      // Handle error as needed
     }
   };
 
