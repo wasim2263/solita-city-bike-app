@@ -76,7 +76,7 @@ const NewStationForm: React.FC = () => {
           display="flex"
           flexDirection="column"
           alignItems="center"
-          width="100%"
+          width="50%"
           mx="auto"
         >
           <Box mb={2}>
