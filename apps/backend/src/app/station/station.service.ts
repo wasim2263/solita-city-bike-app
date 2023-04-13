@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {CreateStationDto} from './dto/create-station.dto';
 import {InjectRepository} from "@nestjs/typeorm";
 import {Station} from "./entities/station.entity";
@@ -25,11 +25,11 @@ export class StationService {
     const queryBuilder = this.stationRepository.createQueryBuilder('stations')
       .loadRelationCountAndMap('stations.departure_journeys_count', 'stations.departure_journeys')
       .loadRelationCountAndMap('stations.return_journeys_count', 'stations.return_journeys');
-    if(search != ""){
-      queryBuilder.where('stations.name LIKE :searchTerm', { searchTerm: `%${search}%` })
-        .orWhere('stations.address LIKE :searchTerm', { searchTerm: `%${search}%` })
-        .orWhere('CAST(stations.station_id AS varchar) LIKE :searchTerm', { searchTerm: `%${search}%` })
-        .orWhere('CAST(stations.capacities AS varchar) LIKE :searchTerm', { searchTerm: `%${search}%` })
+    if (search != "") {
+      queryBuilder.where('stations.name LIKE :searchTerm', {searchTerm: `%${search}%`})
+        .orWhere('stations.address LIKE :searchTerm', {searchTerm: `%${search}%`})
+        .orWhere('CAST(stations.station_id AS varchar) LIKE :searchTerm', {searchTerm: `%${search}%`})
+        .orWhere('CAST(stations.capacities AS varchar) LIKE :searchTerm', {searchTerm: `%${search}%`})
 
     }
     return paginate<Station>(queryBuilder, options);
@@ -62,20 +62,29 @@ export class StationService {
     return stationData;
   }
 
-  async bulkCreate(data: CreateStationDto[]):Promise<void> {
+  async bulkCreate(data: CreateStationDto[]): Promise<void> {
     console.log('total data', data.length)
     let counter = 0;
     for (const row of data) {
       const stationData = this.formatData(row);
       counter++
-      this.create(stationData);
-      console.log('created station counter',counter);
+      this.upsert(stationData);
+      console.log('created station counter', counter);
     }
   }
 
-  async create(createStationDto: CreateStationDto) {
+  async upsert(createStationDto: CreateStationDto) {
     const station = await this.stationRepository.upsert(createStationDto, ['station_id']);
     return station;
+  }
+
+  create(createStationDto: CreateStationDto) {
+    return this.stationRepository.save(createStationDto).catch(err => {
+      console.log("Error", err.message);
+      throw new HttpException({
+        message: 'Failed to create station'
+      }, HttpStatus.BAD_REQUEST);
+    })
   }
 
   async findAll(page, limit, search) {
@@ -91,6 +100,7 @@ export class StationService {
       .where('stations.id = :id', {id: id})
       .getOne();
   }
+
   findOneByStationId(id: number) {
     console.log(id);
     return this.stationRepository.createQueryBuilder('stations')
