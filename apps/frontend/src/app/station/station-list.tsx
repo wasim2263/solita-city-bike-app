@@ -1,7 +1,8 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
 import {Card, Table, TableBody, TableCell, TableHead, TablePagination, TableRow} from "@mui/material";
 import {Search} from "../search/search";
+import AddBoxIcon from "@mui/icons-material/AddBox";
 
 /* eslint-disable-next-line */
 export interface StationListProps {
@@ -66,6 +67,12 @@ export const StationList = (props: StationListProps) => {
   }
   return (
     <Card>
+      <div style={{display: 'flex', alignItems: 'center'}}>
+        <span>Create new</span>
+        <a href="stations/new/">
+          <AddBoxIcon style={{marginLeft: '5px'}}/>
+        </a>
+      </div>
       <Search searchFunction={searchStation}/>
       <Table>
         <TableHead>
@@ -110,7 +117,7 @@ export const StationList = (props: StationListProps) => {
               </TableCell>
 
               <TableCell align='center'>
-                <a target="_blank" href={`stations/${station.id}`}>View</a>
+                <a target="_blank" href={`stations/${station.id}`} rel="noreferrer">View</a>
               </TableCell>
             </TableRow>
           ))}

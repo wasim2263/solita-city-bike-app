@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 
-import JourneyList from './journey-list';
+import {JourneyList} from './journey-list';
 
 describe('JourneyList', () => {
   it('should render successfully', () => {

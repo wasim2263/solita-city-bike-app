@@ -38,9 +38,8 @@ export class StationController {
   }
 
   @Post()
-  async create(@Body() createStationDto: CreateStationDto) {
-    const insertedStation = await this.stationService.create(createStationDto);
-    return insertedStation.generatedMaps[0];
+  create(@Body() createStationDto: CreateStationDto) {
+    return this.stationService.create(createStationDto);
   }
 
   @searchQuery

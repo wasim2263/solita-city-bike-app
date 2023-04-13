@@ -125,7 +125,7 @@ export class JourneyService {
     if (this.stationIds.includes(stationData.station_id)) {
       station = this.stations[stationData.station_id];
     } else {
-      const insertedStation = await this.stationService.create(stationData);
+      const insertedStation = await this.stationService.upsert(stationData);
       station = insertedStation.generatedMaps[0];
       if (station) {
         this.stations[station.station_id] = station;
