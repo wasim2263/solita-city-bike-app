@@ -16,6 +16,9 @@ describe('StationController', () => {
       findOne: jest.fn((id) => {
         return {};
       }),
+      findAll: jest.fn((page, limit, search) => {
+        return {};
+      }),
       getMonths: jest.fn((id) => {
         return {};
       }),
@@ -56,6 +59,15 @@ describe('StationController', () => {
       await controller.findOne(id);
       expect(spyService.findOne).toHaveBeenCalledWith(id);
       expect(spyService.getMonths).toHaveBeenCalledWith(id);
+    });
+  });
+  describe('findAll', () => {
+    it('should call stationService.findAll with correct parameters', async () => {
+      const page = 1;
+      const limit = 10;
+      const search = 'dummy search';
+      await controller.findAll(page, limit, search);
+      expect(spyService.findAll).toHaveBeenCalledWith(page, limit, search);
     });
   });
   describe('getStatistics', () => {

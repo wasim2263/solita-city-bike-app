@@ -115,6 +115,9 @@ export class StationService {
       .select('MIN(journeys.departed_at)')
       .addSelect('MAX(journeys.returned_at)')
       .getRawOne();
+    if(!dateRange.min &&!dateRange.max) {
+      return [];
+    }
     const startDate = new Date(dateRange.min);
     const endDate = new Date(dateRange.max);
     // const yearDifference = endDate.getFullYear()- startDate.getFullYear()
