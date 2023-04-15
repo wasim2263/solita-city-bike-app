@@ -58,7 +58,6 @@ export class StationController {
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     const station = await this.stationService.findOne(id);
     const months = await this.stationService.getMonths(id);
-    console.log(months)
     return {station: station, months: months}
   }
 
