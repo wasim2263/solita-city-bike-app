@@ -43,6 +43,9 @@ describe('StationController', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
 
   describe('create', () => {
     const createStationDto = new CreateStationDto();
