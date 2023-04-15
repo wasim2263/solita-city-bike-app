@@ -10,7 +10,7 @@ import {JourneyService} from './journey.service';
 import {CreateJourneyDto} from './dto/create-journey.dto';
 import {FileInterceptor} from "@nestjs/platform-express";
 import {ApiConsumes} from "@nestjs/swagger";
-import {FileUploadJourniesDto} from "./dto/file-upload-journies.dto";
+import {FileUploadJourneysDto} from "./dto/file-upload-journeys.dto";
 import {FileUploadService} from "../file-upload/file-upload.service";
 import {limit, orderByQuery, orderQuery, page, searchQuery} from "./decorators/api-params-decorators";
 import {Journey} from "./entities/journey.entity";
@@ -29,7 +29,7 @@ export class JourneyController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
-    @Body() fileUploadJourniesDto: FileUploadJourniesDto,
+    @Body() fileUploadJourneysDto: FileUploadJourneysDto,
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     @UploadedFile() file: Express.Multer.File
